@@ -160,6 +160,9 @@
     // Gestion des paramètres
     let typeBien = "";
     let departement = "";
+    // Centrage de la carte
+    let centrageMaxPopulation = 0;
+    let centrageCoordonnees = [45.3, 5.6];
 
     // Initialisation avec les paramètres passés dans l'URL
     const params = new URLSearchParams(location.search);
@@ -207,6 +210,7 @@
         // Si on a toutes les données
         if (contoursCommunes !== "" && prixVentesCommunes !== "") {
             layerGeoJson.addTo(mymap);
+            centrageMaxPopulation = 0;
             contoursCommunes.forEach(uneCommune => {
                 // Couleur de remplissage
                 let couleur = '#D3D3D3';
@@ -220,7 +224,11 @@
                     // Couleur de remplissage
                     couleur = uneCommunePrix.couleurBien;
                 }
-
+                // Est-ce une ville principale du département ?
+                if (uneCommune.population > centrageMaxPopulation) {
+                    centrageCoordonnees = uneCommune.centre.coordinates.reverse();
+                    centrageMaxPopulation = uneCommune.population;
+                }
                 // Bordures de la commune
                 let contour = uneCommune.contour;
                 for (let i = 0; i < contour.length; i++) {
@@ -232,6 +240,8 @@
                 // Intérieur + liseré
                 layerGeoJson.addLayer(L.geoJson(contour, {style: getStyle(couleur)}).bindPopup(popup));
             });
+            // Centrage de l'affichage
+            mymap.flyTo(centrageCoordonnees, 10);
         }
     }
 
