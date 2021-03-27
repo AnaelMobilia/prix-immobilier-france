@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!--
+/*
+ * prix-immobilier-france permet de visusaliser le prix de l'immobilier
+ * en France.
+ * Copyright (C) 2021 - Anael MOBILIA
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+-->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Prix de l'immobilier en France</title>
+    <base href="https://prix-immobilier-france.anael.eu/">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <style>
+        #mapid {
+            position: absolute !important;
+            top: 56px;
+            /*bottom: 40px;*/
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border: 1px solid black
+        }
+
+        /* Retour à la ligne du bouton du navbar-toggle */
+        @media (max-width: 359.98px) {
+            #mapid {
+                top: 96px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/css/bootstrap-select.min.css">
+</head>
+<body>
+<!-- navbar-expand-lg pour éviter d'avoir le menu empilé qui empiète sur la carte -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Prix de l'immobilier en France</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="row">
+                <div class="col-auto">
+                    <select id="departement" class="selectpicker show-tick"
+                            data-live-search="true" data-live-search-normalize="true" data-title="Département"
+                            onchange="departement=this.value;refreshDatas();"></select>
+                </div>
+                <div class="col-auto">
+                    <select id="typeBien" class="selectpicker show-tick" data-title="Type de bien"
+                            onchange="typeBien=this.value;refreshDatas();">
+                        <optgroup label="Type de bien">
+                            <option value="">Tous</option>
+                            <option value="Maison">Maison</option>
+                            <option value="Appartement">Appartement</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class="ms-auto">
+                <!-- Button trigger modal -->
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modalAPropos">A propos</a>
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- Modal A propos -->
+<div class="modal fade" id="modalAPropos" tabindex="-1" aria-labelledby="modalAProposLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalAProposLabel">A propos de cet outil</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <h3>A propos</h3>
+                <p>Cet outil vous permet de visualiser les prix des ventes de bien immobilier en France par communes à
+                    partir de critères (département, type de bien, ...).<br/>
+                    Il est développé à titre personnel par <a href="https://www.anael.eu">Anael MOBILIA</a> et est mis
+                    gracieusement à disposition de toute personne souhaitant l'utiliser.<br/>
+                <h3>Utilisation de l'outil</h3>
+                <h4>Pourquoi certains départements ne sont pas disponibles ?</h4>
+                <p>Aucune information n'est fournie pour les département de l'Alsace, de la Moselle et de Mayotte car
+                    les données de mutation immobilière ne sont pas disponibles (données gérées par le Livre Foncier et
+                    non par la DGFiP).</p>
+                <h4>Pourquoi certaines villes ne possédent pas d'informations ?</h4>
+                <p>Si aucune mutation immobilière correspondant aux critères n'a eu lieu aucune donnée ne peut être
+                    affichée.</p>
+                <h4>Pourquoi des données plus récentes ne sont pas proposées ?</h4>
+                <p>La DGFiP met à jour de manière semestrielle (avril et octobre) les données utilisées par l'outil.</p>
+                <h4>Comment est calulé la surface du bien ?</h4>
+                <p>Les données de la DGFiP ne contiennent que trop rarement les superficies loi Carez. Les surfaces sont
+                    donc les surface au sol.</p>
+                <h3>Sources de données</h3>
+                <p>Deux sources de données sont utilisées de manières croisées par l'outil.</p>
+                <h4>Demandes de valeurs foncières géolocalisées</h4>
+                <p><a href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/">Données
+                    fournies par Etalab</a> reprenant les <a
+                        href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres/">données DVF fournies
+                    par la DGFiP</a> (<a
+                        href="https://www.data.gouv.fr/fr/datasets/r/99549bdd-91f1-4a99-ac00-855b9a14e5f6">licence
+                    d'utilisation</a>). Ces données permettent de connaître les transactions immobilières intervenues au
+                    cours des cinq dernières années sur le territoire métropolitain et les DOM-TOM, à l’exception de
+                    l’Alsace, de la Moselle et de Mayotte. Les données contenues sont issues des actes notariés et des
+                    informations cadastrales.</p>
+                <h4>Découpage administratif</h4>
+                <p><a href="https://github.com/etalab/decoupage-administratif">Données fournies par Etalab</a>
+                    concernant le découpage administratif français.</p>
+                <h3>Contribuer</h3>
+                <p>Le code source du logiciel est <a href="https://github.com/AnaelMobilia/prix-immobilier-france">disponible
+                    sur GitHub</a>. Vous pouvez contribuer au logiciel ou proposer des évolutions.</p>
+                <h3>Mentions légales</h3>
+                <p>L'hébergeur de ce site est <a href="https://www.ovh.com">OVH</a>. Aucune donnée personnelle n'est
+                    collectée par l'outil. Aucun cookie n'est utilisé. Pour toute modification des données, contacter le
+                    fournisseur des données (voir Sources de données).</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+<main class="container-fluid">
+    <div id="mapid"></div>
+    Données 2019 et 2020<br/>
+</main>
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+<script>
+    // Gestion de la carte
+    const mymap = L.map('mapid').setView([45.3, 5.6], 10);
+    let layerGeoJson = new L.LayerGroup();
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mymap);
+
+    // Gestion des paramètres
+    let typeBien = "";
+    let departement = "";
+
+    // Initialisation avec les paramètres passés dans l'URL
+    const params = new URLSearchParams(location.search);
+    typeBien = params.get("typeBien");
+    departement = params.get("departement");
+
+
+    // Exécute un appel AJAX GET
+    // Prend en paramètres l'URL cible et la fonction callback appelée en cas de succès
+    function ajaxGet(url, callback) {
+        let req = new XMLHttpRequest();
+        req.open("GET", url);
+        req.addEventListener("load", function () {
+            if (req.status >= 200 && req.status < 400) {
+                // Appelle la fonction callback en lui passant la réponse de la requête
+                callback(req.responseText);
+            } else {
+                console.error(req.status + " " + req.statusText + " " + url);
+            }
+        });
+        req.addEventListener("error", function () {
+            console.error("Erreur réseau avec l'URL " + url);
+        });
+        req.send(null);
+    }
+
+    // Style pour les cases des communes
+    function getStyle(couleur) {
+        return {
+            fillColor: couleur,     // Fond - couleur
+            fillOpacity: 0.5,       // Fond - opacité
+            weight: 1,              // Liseré - taille
+            opacity: 1,             // Liseré - opacité
+            color: 'white',         // Liseré - couleur
+            dashArray: '5',         // Liseré - espacement
+        };
+    }
+
+    // Contenu des appels Ajax
+    let contoursCommunes = "";
+    let prixVentesCommunes = "";
+
+    // Met à jour le rendu de la carte
+    function miseAjourCarte() {
+        // Si on a toutes les données
+        if (contoursCommunes !== "" && prixVentesCommunes !== "") {
+            layerGeoJson.addTo(mymap);
+            contoursCommunes.forEach(uneCommune => {
+                // Couleur de remplissage
+                let couleur = '#D3D3D3';
+                let popup = "<b>" + uneCommune.nom + "</b>";
+
+                // Prix au metre carré
+                let uneCommunePrix = prixVentesCommunes[uneCommune.code];
+                if (uneCommunePrix) {
+                    popup += "<br/>Bien : " + uneCommunePrix.prixBienM2 + " €/m²<br/>Terrain : " + uneCommunePrix.prixTerrainM2 + " €/m²<br />" + uneCommunePrix.valeurs + " vente" + (uneCommunePrix.valeurs > 1 ? "s" : "");
+
+                    // Couleur de remplissage
+                    couleur = uneCommunePrix.couleurBien;
+                }
+
+                // Bordures de la commune
+                let contour = uneCommune.contour;
+                for (let i = 0; i < contour.length; i++) {
+                    // Coordonnées pas dans le même sens que la source
+                    contour[i].reverse();
+                }
+                // Traits bleus
+                layerGeoJson.addLayer(L.geoJson(contour));
+                // Intérieur + liseré
+                layerGeoJson.addLayer(L.geoJson(contour, {style: getStyle(couleur)}).bindPopup(popup));
+            });
+        }
+    }
+
+    // Récupère le contour des communes d'un departement
+    function ajaxGetContoursCommunes() {
+        ajaxGet("ajax/getContoursCommunesDepartement.php?departement=" + departement, function (response) {
+            // Stocker le résultat
+            contoursCommunes = JSON.parse(response);
+            miseAjourCarte();
+        });
+    }
+
+    // Récupère les ventes foncières d'un département
+    function ajaxGetVentesParCommunes() {
+        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien, function (response) {
+            // Stocker le résultat
+            prixVentesCommunes = JSON.parse(response);
+            miseAjourCarte();
+        });
+    }
+
+    // Compléter le select de la liste des départements
+    function fillSelectDepartement() {
+        ajaxGet("ajax/getListeDepartements.php", function (response) {
+            const select = document.getElementById('departement');
+            // Vider le contenu du select
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+            // Remplir avec la nouvelle liste
+            const listeDep = JSON.parse(response);
+            listeDep.forEach(unDep => {
+                let opt = document.createElement('option');
+                if (unDep.actif === "0") {
+                    opt.disabled = "disabled";
+                }
+                opt.value = unDep.code;
+                opt.innerHTML = unDep.code + " - " + unDep.nom;
+                select.appendChild(opt);
+            });
+            // Notifier bootstrap-select
+            $('.selectpicker').selectpicker('refresh');
+            // Définir la valeur selectionnée
+            if (departement !== "") {
+                select.value = departement;
+                // Le refaire pour le rendu de bootstrap-select
+                $('#departement').selectpicker("val", departement);
+            }
+            if (typeBien !== "") {
+                // Le refaire pour le rendu de bootstrap-select
+                $('#typeBien').selectpicker("val", typeBien);
+            }
+        });
+    }
+
+    // Fonction appelée pour dessiner les données d'un département
+    function refreshDatas() {
+        // Mettre à jour l'URL de la page
+        params.set('typeBien', typeBien);
+        params.set('departement', departement);
+        window.history.replaceState({}, '', `${location.pathname}?${params}`);
+        // Effacer les anciennes données
+        mymap.removeLayer(layerGeoJson);
+        layerGeoJson = new L.LayerGroup();
+        contoursCommunes = "";
+        prixVentesCommunes = "";
+        // Récupérer les nouvelles données
+        ajaxGetContoursCommunes();
+        ajaxGetVentesParCommunes();
+    }
+
+    // Compléter le select des départements
+    fillSelectDepartement();
+    // Dessiner les informations pour l'Isère / Maison
+    refreshDatas();
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/js/bootstrap-select.min.js"></script>
+</body>
+</html>
