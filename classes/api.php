@@ -56,4 +56,20 @@ class api
         return $result;
     }
 
+    /**
+     * Récupérer le contenu d'un fichier
+     * @param string $path Path du fichier
+     * @return string Contenu
+     */
+    public static function getContenuFichier(string $path): string
+    {
+        $monRetour = json_encode([]);
+
+        if (file_exists($path)) {
+            $monRetour = file_get_contents($path);
+        }
+
+        return $monRetour;
+    }
+
 }

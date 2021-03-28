@@ -18,67 +18,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// TODO : passage dans la classe ?
-// TODO : gérer les codes arrondissements paris / marseille / lyon / ...
-
 /**
  * Récupération des prix de ventes des communes d'un département
  */
 require "../config/config.php";
-
-/**
- * Traite un fichier CSV
- * @param int $annee Année des ventes
- * @param string $departement Département concerné
- * @param string $typeBien Type de bien (Maison / Appartement)
- * @param array $tableau Passage en argument - Valeurs récupérées
- */
-function parseCSV(int $annee, string $departement, string $typeBien, array &$tableau)
-{
-    // Chemin du fichier sur le disque
-    $fichier = etalabDvf::getFileListeVentes($departement, $annee);
-
-    if (is_file($fichier)) {
-        $handle = fopen($fichier, "r");
-        while (($data = fgetcsv($handle)) !== false) {
-            // Nature de mutation
-            if (true) {
-                if (substr($data[3], 0, 5) != "Vente") {
-                    continue;
-                }
-            }
-            // Type de local
-            if ($typeBien != "" && $typeBien != "null") {
-                if ($data[30] != $typeBien) {
-                    continue;
-                }
-            }
-
-            // https://sites.google.com/site/oplusimple/Home/outilspratiques/excel-1/excel
-            // Caractéristiques
-            $idTransaction = $data[0];
-            $superficieBien = (int)$data[31];
-            $superficieTerrain = (int)$data[37];
-            $prix = (int)$data[4];
-            $codeInsee = $data[10];
-
-            if ($superficieBien > 0) {
-                // Cette transaction concerne-t-elle plusieurs biens ?
-                if (isset($datasCsv[$idTransaction])) {
-                    // On additionne les superficies (le prix est global)
-                    $superficieBien += $tableau[$idTransaction]["superficieBien"];
-                    $superficieTerrain += $tableau[$idTransaction]["superficieTerrain"];
-                }
-                // Stocker le résultat
-                $tableau[$idTransaction]["prix"] = $prix;
-                $tableau[$idTransaction]["superficieBien"] = $superficieBien;
-                $tableau[$idTransaction]["superficieTerrain"] = $superficieTerrain;
-                $tableau[$idTransaction]["codeInsee"] = $codeInsee;
-            }
-        }
-        fclose($handle);
-    }
-}
 
 $departement = $_REQUEST["departement"];
 $typeBien = $_REQUEST["typeBien"];
@@ -89,17 +32,14 @@ if (!ctype_alnum($departement) || (!empty($typeBien) && !ctype_alnum($typeBien))
 }
 
 // Traitement du fichier CSV
-$datasCsv = [];
-parseCSV(2020, $departement, $typeBien, $datasCsv);
-parseCSV(2019, $departement, $typeBien, $datasCsv);
-
+$datasCsv = etalabDvf::getListeVentes([$departement], ["2019", "2020"], $typeBien);
 // Synthétiser les données par commune
 $communes = [];
-foreach ($datasCsv as $uneTransaction) {
-    $codeInsee = $uneTransaction["codeInsee"];
+foreach (json_decode($datasCsv) as $uneTransaction) {
+    $codeCommune = $uneTransaction->code_commune;
     // Je créée la commune si nécessaire
-    if (!isset($communes[$codeInsee])) {
-        $communes[$codeInsee] = [
+    if (!isset($communes[$codeCommune])) {
+        $communes[$codeCommune] = [
             "prix" => 0,
             "superficieBien" => 0,
             "superficieTerrain" => 0,
@@ -107,10 +47,10 @@ foreach ($datasCsv as $uneTransaction) {
         ];
     }
     // On somme les valeurs pour lisser les écarts avec une moyenne
-    $communes[$codeInsee]["prix"] += $uneTransaction["prix"];
-    $communes[$codeInsee]["superficieBien"] += $uneTransaction["superficieBien"];
-    $communes[$codeInsee]["superficieTerrain"] += $uneTransaction["superficieTerrain"];
-    $communes[$codeInsee]["valeurs"]++;
+    $communes[$codeCommune]["prix"] += $uneTransaction->valeur_fonciere;
+    $communes[$codeCommune]["superficieBien"] += $uneTransaction->surface_reelle_bati;
+    $communes[$codeCommune]["superficieTerrain"] += $uneTransaction->surface_terrain;
+    $communes[$codeCommune]["valeurs"]++;
 }
 
 // Calculer €/m² par commune + fourchette de prix
@@ -118,7 +58,7 @@ $prixMinBien = 999999;
 $prixMaxBien = 0;
 $prixMinTerrain = 999999;
 $prixMaxTerrain = 0;
-foreach ($communes as $codeInsee => $valeurs) {
+foreach ($communes as $codeCommune => $valeurs) {
     $prixBienM2 = 0;
     $prixTerrainM2 = 0;
     if ($valeurs["superficieBien"] > 0) {
@@ -128,9 +68,9 @@ foreach ($communes as $codeInsee => $valeurs) {
         $prixTerrainM2 = (int)round($valeurs["prix"] / $valeurs["superficieTerrain"]);
     }
 
-    $communes[$codeInsee]["prixBienM2"] = $prixBienM2;
-    $communes[$codeInsee]["prixTerrainM2"] = $prixTerrainM2;
-    $communes[$codeInsee]["valeurs"] = $valeurs["valeurs"];
+    $communes[$codeCommune]["prixBienM2"] = $prixBienM2;
+    $communes[$codeCommune]["prixTerrainM2"] = $prixTerrainM2;
+    $communes[$codeCommune]["valeurs"] = $valeurs["valeurs"];
 
     // Fourchettes de prix - Exclusion des communes avec 1 seule valeur
     if ($valeurs["valeurs"] > 1) {
@@ -187,16 +127,16 @@ function heatmapColor(int $value, int $minValue, int $maxValue): string
 $resultats = [];
 
 // Informations de chaque commune
-foreach ($communes as $codeInsee => $valeurs) {
+foreach ($communes as $codeCommune => $valeurs) {
     $tabTmp = [
-        "codeInsee" => $codeInsee,
+        "codeInsee" => $codeCommune,
         "prixBienM2" => $valeurs["prixBienM2"],
         "prixTerrainM2" => $valeurs["prixTerrainM2"],
         "couleurBien" => "#" . heatmapColor($valeurs["prixBienM2"], $prixMinBien, $prixMaxBien),
         "couleurTerrain" => "#" . heatmapColor($valeurs["prixTerrainM2"], $prixMinTerrain, $prixMaxTerrain),
         "valeurs" => $valeurs["valeurs"],
     ];
-    $resultats[$codeInsee] = $tabTmp;
+    $resultats[$codeCommune] = $tabTmp;
 }
 
 $resultats[0] = [

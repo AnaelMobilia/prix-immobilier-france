@@ -53,7 +53,7 @@ class geoApiGouvFr
      */
     public static function getListeRegions(): string
     {
-        return self::getContenuFichier(self::listeRegions);
+        return api::getContenuFichier(self::listeRegions);
     }
 
     /**
@@ -63,7 +63,7 @@ class geoApiGouvFr
      */
     public static function getListeDepartements(int $region = 0): string
     {
-        $datas = self::getContenuFichier(self::listeDepartements);
+        $datas = api::getContenuFichier(self::listeDepartements);
         $listeDep = [];
         foreach (json_decode($datas) as $unDep) {
             if ($region !== 0 && $unDep->region->code != $region) {
@@ -88,7 +88,7 @@ class geoApiGouvFr
      */
     public static function getListeCommunes(string $departement): string
     {
-        return self::getContenuFichier(self::pathDepartements . $departement);
+        return api::getContenuFichier(self::pathDepartements . $departement);
     }
 
     /**
@@ -97,7 +97,7 @@ class geoApiGouvFr
      */
     public static function getContoursRegions(): string
     {
-        return self::getContenuFichier(self::contoursRegions);
+        return api::getContenuFichier(self::contoursRegions);
     }
 
     /**
@@ -108,7 +108,7 @@ class geoApiGouvFr
      */
     public static function getContoursDepartements(int $region = 0, int $departement = 0): string
     {
-        $datas = self::getContenuFichier(self::contoursDepartements);
+        $datas = api::getContenuFichier(self::contoursDepartements);
         if ($region !== 0 || $departement !== 0) {
             // Filtrage sur un département ou une région
             $contourDep = [];
@@ -271,21 +271,5 @@ class geoApiGouvFr
         $fichier = self::listeRegions;
 
         return api::telecharger($url, $fichier);
-    }
-
-    /**
-     * Récupérer le contenu d'un fichier
-     * @param string $path Path du fichier
-     * @return string Contenu
-     */
-    private static function getContenuFichier(string $path): string
-    {
-        $monRetour = json_encode([]);
-
-        if (file_exists($path)) {
-            $monRetour = file_get_contents($path);
-        }
-
-        return $monRetour;
     }
 }
