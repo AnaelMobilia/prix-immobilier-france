@@ -63,8 +63,8 @@
             <div class="row">
                 <div class="col-auto">
                     <select id="departement" class="selectpicker show-tick"
-                            data-live-search="true" data-live-search-normalize="true" data-title="Département"
-                            onchange="departement=this.value;refreshDatas();"></select>
+                            data-live-search="true" data-live-search-normalize="true" data-title="Département" multiple
+                            onchange="departement=getValuesSelected('departement');refreshDatas();"></select>
                 </div>
                 <div class="col-auto">
                     <select id="typeBien" class="selectpicker show-tick" data-title="Type de bien"
@@ -305,7 +305,7 @@
             if (departement !== "") {
                 select.value = departement;
                 // Le refaire pour le rendu de bootstrap-select
-                $('#departement').selectpicker("val", departement);
+                $('#departement').selectpicker("val", departement.split('-'));
             }
             if (typeBien !== "") {
                 // Le refaire pour le rendu de bootstrap-select
@@ -329,6 +329,16 @@
         // Récupérer les nouvelles données
         ajaxGetContoursCommunes();
         ajaxGetVentesParCommunes();
+    }
+
+    // Récupérer les valeurs sélectionnées d'un select multiple sous forme val1-val2
+    function getValuesSelected(idElement) {
+        let retour = [];
+        let collection = document.getElementById(idElement).selectedOptions;
+        for (let i = 0; i < collection.length; i++) {
+            retour.push(collection[i].value)
+        }
+        return retour.join('-');
     }
 
     // Compléter le select des départements

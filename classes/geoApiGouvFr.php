@@ -82,13 +82,20 @@ class geoApiGouvFr
     }
 
     /**
-     * Récupérer la liste des communes d'un département
-     * @param string $departement Département concerné
+     * Récupérer la liste et contours des communes d'un département
+     * @param array $departement Département(s) concerné(s)
      * @return string JSON
      */
-    public static function getListeCommunes(string $departement): string
+    public static function getContoursCommunes(array $departement): string
     {
-        return api::getContenuFichier(self::pathDepartements . $departement);
+        $monRetour = [];
+        foreach ($departement as $unDep) {
+            $datas = api::getContenuFichier(self::pathDepartements . $unDep);
+            foreach (json_decode($datas) as $uneCommune) {
+                $monRetour[] = $uneCommune;
+            }
+        }
+        return json_encode($monRetour);
     }
 
     /**

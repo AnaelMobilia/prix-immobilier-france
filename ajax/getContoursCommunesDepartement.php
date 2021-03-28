@@ -24,12 +24,12 @@
 
 require "../config/config.php";
 
-$codeDepartement = $_REQUEST["departement"];
+$departement = $_REQUEST["departement"];
 // Cas d'erreur
-if (!ctype_alnum($codeDepartement)) {
+if (!ctype_alnum(str_replace('-', '', $departement))) {
     header("HTTP/1.0 404 Not Found");
     die("ERREUR : Mauvais code de département");
 }
 
 header('Content-Type: application/json');
-echo geoApiGouvFr::getListeCommunes($codeDepartement);
+echo geoApiGouvFr::getContoursCommunes(explode('-', $departement));
