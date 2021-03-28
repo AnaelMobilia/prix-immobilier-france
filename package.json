@@ -4,6 +4,7 @@
     "Leaflet": "1.7.1",
     "bootstrap": "5.0.0-beta3",
     "bootstrap-select": "1.14.0-beta2",
-    "jquery": "3.6.0"
+    "jquery": "3.6.0",
+    "RDP-PHP": "0.0.1"
   }
 }
