@@ -76,6 +76,15 @@
                         </optgroup>
                     </select>
                 </div>
+                <div class="col-auto">
+                    <select id="periode" class="selectpicker show-tick" data-title="Période"
+                            multiple disabled="disabled">
+                        <optgroup label="Période">
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                        </optgroup>
+                    </select>
+                </div>
             </div>
             <div class="ms-auto">
                 <!-- Button trigger modal -->
@@ -107,10 +116,17 @@
                 <p>Si aucune mutation immobilière correspondant aux critères n'a eu lieu aucune donnée ne peut être
                     affichée.</p>
                 <h4>Pourquoi des données plus récentes ne sont pas proposées ?</h4>
-                <p>La DGFiP met à jour de manière semestrielle (avril et octobre) les données utilisées par l'outil.</p>
+                <p>La DGFiP met à jour de manière semestrielle (avril et octobre) les données utilisées par l'outil. <a
+                        href="https://www.data.gouv.fr/fr/datasets/r/087ec735-74fd-48a7-a82e-0b1cd3ea6fe9">Voir la FAQ
+                    de la DGFiP</a></p>
                 <h4>Comment est calulé la surface du bien ?</h4>
                 <p>Les données de la DGFiP ne contiennent que trop rarement les superficies loi Carez. Les surfaces sont
                     donc les surface au sol.</p>
+                <h4>Je ne retrouve pas une mutation...</h4>
+                <p>En plus des limitations listées ci-dessus, les mutations concernant plusieurs types de biens
+                    (Appartement, Maison, Local industriel / commercial ou assimilé) ne sont pas prises en compte. En
+                    effet, il n'est pas possible de séparer la valeur foncière en fonction du type du bien dans ce
+                    cas.</p>
                 <h3>Sources de données</h3>
                 <p>Deux sources de données sont utilisées de manières croisées par l'outil.</p>
                 <h4>Demandes de valeurs foncières géolocalisées</h4>
@@ -166,9 +182,8 @@
 
     // Initialisation avec les paramètres passés dans l'URL
     const params = new URLSearchParams(location.search);
-    typeBien = params.get("typeBien");
-    departement = params.get("departement");
-
+    typeBien = (params.get("typeBien") ? params.get("typeBien") : "");
+    departement = (params.get("departement") ? params.get("departement") : "");
 
     // Exécute un appel AJAX GET
     // Prend en paramètres l'URL cible et la fonction callback appelée en cas de succès
@@ -219,10 +234,12 @@
                 // Prix au metre carré
                 let uneCommunePrix = prixVentesCommunes[uneCommune.code];
                 if (uneCommunePrix) {
-                    popup += "<br/>Bien : " + uneCommunePrix.prixBienM2 + " €/m²<br/>Terrain : " + uneCommunePrix.prixTerrainM2 + " €/m²<br />" + uneCommunePrix.valeurs + " vente" + (uneCommunePrix.valeurs > 1 ? "s" : "");
+                    popup += "<br/>Bien : " + uneCommunePrix.prixBienM2 + " €/m²<br/><em>Terrain : " + uneCommunePrix.prixTerrainM2 + " €/m²</em><br />" + uneCommunePrix.valeurs + " vente" + (uneCommunePrix.valeurs > 1 ? "s" : "");
 
                     // Couleur de remplissage
                     couleur = uneCommunePrix.couleurBien;
+                } else {
+                    popup += "<br/><em>Pas de données</em>";
                 }
                 // Est-ce une ville principale du département ?
                 if (uneCommune.population > centrageMaxPopulation) {
@@ -238,7 +255,7 @@
                 // Traits bleus
                 layerGeoJson.addLayer(L.geoJson(contour));
                 // Intérieur + liseré
-                layerGeoJson.addLayer(L.geoJson(contour, {style: getStyle(couleur)}).bindPopup(popup));
+                layerGeoJson.addLayer(L.geoJson(contour, {style: getStyle(couleur)}).bindPopup(popup,));
             });
             // Centrage de l'affichage
             mymap.flyTo(centrageCoordonnees, 10);
@@ -294,10 +311,11 @@
                 // Le refaire pour le rendu de bootstrap-select
                 $('#typeBien').selectpicker("val", typeBien);
             }
+            $('#periode').selectpicker("val", ["2019", "2020"]);
         });
     }
 
-    // Fonction appelée pour dessiner les données d'un département
+    // Dessiner les données d'un département
     function refreshDatas() {
         // Mettre à jour l'URL de la page
         params.set('typeBien', typeBien);
