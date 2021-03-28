@@ -58,6 +58,8 @@ $prixMinBien = 999999;
 $prixMaxBien = 0;
 $prixMinTerrain = 999999;
 $prixMaxTerrain = 0;
+$tabPrix = [];
+
 foreach ($communes as $codeCommune => $valeurs) {
     $prixBienM2 = 0;
     $prixTerrainM2 = 0;
@@ -72,22 +74,16 @@ foreach ($communes as $codeCommune => $valeurs) {
     $communes[$codeCommune]["prixTerrainM2"] = $prixTerrainM2;
     $communes[$codeCommune]["valeurs"] = $valeurs["valeurs"];
 
-    // Fourchettes de prix - Exclusion des communes avec 1 seule valeur
-    if ($valeurs["valeurs"] > 1) {
-        if ($prixBienM2 > $prixMaxBien) {
-            $prixMaxBien = $prixBienM2;
-        }
-        if ($prixBienM2 !== 0 && $prixBienM2 < $prixMinBien) {
-            $prixMinBien = $prixBienM2;
-        }
-        if ($prixTerrainM2 > $prixMaxTerrain) {
-            $prixMaxTerrain = $prixTerrainM2;
-        }
-        if ($prixTerrainM2 !== 0 && $prixTerrainM2 < $prixMinTerrain) {
-            $prixMinTerrain = $prixTerrainM2;
-        }
-    }
+    // Liste des prix
+    $tabPrix[] = $prixBienM2;
 }
+
+// Trier la liste des prix
+sort($tabPrix);
+
+// Calcul des bornes de prix au 5ème et 97ème percentile pour supprimer l'impact des extrêmes
+$prixMinBien = $tabPrix[floor(5/100*sizeof($tabPrix))];
+$prixMaxBien = $tabPrix[floor(97/100*sizeof($tabPrix))];
 
 /**
  * Calcule la valeur de la couleur pour la heatmap
@@ -141,9 +137,9 @@ foreach ($communes as $codeCommune => $valeurs) {
 
 $resultats[0] = [
     "prixMinBien" => $prixMinBien,
-    'prixMaxBien' => $prixMaxBien,
+    "prixMaxBien" => $prixMaxBien,
     "prixMinTerrain" => $prixMinTerrain,
-    'prixMaxTerrain' => $prixMaxTerrain,
+    "prixMaxTerrain" => $prixMaxTerrain,
 ];
 
 header('Content-Type: application/json');
