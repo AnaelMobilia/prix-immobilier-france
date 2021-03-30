@@ -78,7 +78,8 @@
                 </div>
                 <div class="col-auto">
                     <select id="periode" class="selectpicker show-tick" data-title="Période"
-                            multiple disabled="disabled">
+                            multiple disabled="disabled"
+                            onchange="periode=getValuesSelected('periode');refreshDatas();">
                         <optgroup label="Période">
                             <option value="2019">2019</option>
                             <option value="2020">2020</option>
@@ -176,14 +177,16 @@
     // Gestion des paramètres
     let typeBien = "";
     let departement = "";
+    let periode = "";
     // Centrage de la carte
     let centrageMaxPopulation = 0;
     let centrageCoordonnees = [45.3, 5.6];
 
     // Initialisation avec les paramètres passés dans l'URL
     const params = new URLSearchParams(location.search);
-    typeBien = (params.get("typeBien") ? params.get("typeBien") : "");
-    departement = (params.get("departement") ? params.get("departement") : "");
+    typeBien = (params.get("typeBien") ? params.get("typeBien") : "Maison");
+    departement = (params.get("departement") ? params.get("departement") : "38");
+    periode = (params.get("periode") ? params.get("periode") : "2019-2020");
 
     // Exécute un appel AJAX GET
     // Prend en paramètres l'URL cible et la fonction callback appelée en cas de succès
@@ -271,7 +274,7 @@
         });
     }
 
-    // Récupère les ventes foncières d'un département
+    // Récupère les mutations foncières d'un département
     function ajaxGetVentesParCommunes() {
         ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien, function (response) {
             // Stocker le résultat
@@ -311,7 +314,7 @@
                 // Le refaire pour le rendu de bootstrap-select
                 $('#typeBien').selectpicker("val", typeBien);
             }
-            $('#periode').selectpicker("val", ["2019", "2020"]);
+            $('#periode').selectpicker("val", periode.split('-'));
         });
     }
 
