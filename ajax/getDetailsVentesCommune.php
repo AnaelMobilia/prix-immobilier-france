@@ -27,17 +27,19 @@ require "../config/config.php";
 $departement = $_REQUEST["departement"];
 $typeBien = $_REQUEST["typeBien"];
 $codeCommune = $_REQUEST["codeCommune"];
+$periode = $_REQUEST["periode"];
 // Cas d'erreur
 if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($typeBien) && !ctype_alnum($typeBien))
     || !ctype_alnum($codeCommune)
+    || !ctype_alnum(str_replace('-', '', $periode))
 ) {
     header("HTTP/1.1 404 Not Found");
     die("ERREUR");
 }
 
 // Traitement du fichier CSV
-$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), ["2019", "2020"], $typeBien);
+$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien);
 // Synthétiser les données par commune
 $ventes = [];
 foreach (json_decode($datasCsv) as $uneTransaction) {

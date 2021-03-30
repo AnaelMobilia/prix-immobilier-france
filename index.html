@@ -78,8 +78,7 @@
                 </div>
                 <div class="col-auto">
                     <select id="periode" class="selectpicker show-tick" data-title="Période"
-                            multiple disabled="disabled"
-                            onchange="periode=getValuesSelected('periode');refreshDatas();">
+                            multiple onchange="periode=getValuesSelected('periode');refreshDatas();">
                         <optgroup label="Période">
                             <option value="2019">2019</option>
                             <option value="2020">2020</option>
@@ -169,7 +168,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped table-hover" id="detailTable"  >
+                <table class="table table-striped table-hover" id="detailTable">
                     <thead>
                     <tr>
                         <th>Date de mutation</th>
@@ -269,7 +268,15 @@
                 // Prix au metre carré
                 let uneCommunePrix = prixVentesCommunes[uneCommune.code];
                 if (uneCommunePrix) {
-                    popup += "<br/>Bien : " +  new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(uneCommunePrix.prixBienM2) + "/m²<br/><em>Terrain : " + new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(uneCommunePrix.prixTerrainM2) + 'm²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim() + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
+                    popup += "<br/>Bien : " + new Intl.NumberFormat('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        maximumFractionDigits: 0
+                    }).format(uneCommunePrix.prixBienM2) + "/m²<br/><em>Terrain : " + new Intl.NumberFormat('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        maximumFractionDigits: 0
+                    }).format(uneCommunePrix.prixTerrainM2) + 'm²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim() + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
 
                     // Couleur de remplissage
                     couleur = uneCommunePrix.couleurBien;
@@ -308,7 +315,7 @@
 
     // Récupère les mutations foncières d'un département
     function ajaxGetVentesParCommunes() {
-        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien, function (response) {
+        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien + '&periode=' + periode, function (response) {
             // Stocker le résultat
             prixVentesCommunes = JSON.parse(response);
             miseAjourCarte();
@@ -317,7 +324,7 @@
 
     // Récupère les mutations foncières d'une commune
     function ajaxGetDetailVentesParCommunes(codeCommune, nomCommune) {
-        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune, function (response) {
+        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune + '&periode=' + periode, function (response) {
             // Pointeur sur la table dans la modal
             const maModalListe = document.getElementById('detailListe');
             // Vider le contenu de la modal
@@ -340,7 +347,11 @@
                 // Ses valeurs
                 addTdToTrWithValue(ligne, new Date(uneMutation.date_mutation).toLocaleDateString('fr-FR'));
                 addTdToTrWithValue(ligne, uneMutation.nature_mutation);
-                addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(uneMutation.valeur_fonciere));
+                addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    maximumFractionDigits: 0
+                }).format(uneMutation.valeur_fonciere));
                 addTdToTrWithValue(ligne, uneMutation.type_local);
                 addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR').format(uneMutation.surface_reelle_bati) + ' m²');
                 addTdToTrWithValue(ligne, uneMutation.nombre_pieces_principales);
@@ -400,6 +411,7 @@
         // Mettre à jour l'URL de la page
         params.set('typeBien', typeBien);
         params.set('departement', departement);
+        params.set('periode', periode);
         window.history.replaceState({}, '', `${location.pathname}?${params}`);
         // Effacer les anciennes données
         mymap.removeLayer(layerGeoJson);
