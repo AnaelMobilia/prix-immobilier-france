@@ -157,9 +157,41 @@
         </div>
     </div>
 </div>
+<!-- Modal Détail des ventes -->
+<div class="modal fade" id="modalDetailVentes" tabindex="-1" aria-labelledby="modalDetailVentesLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalDetailVentesLabel">Détails des ventes de <span
+                        id="detailTypeBien"></span> à <span id="detailNomVille"></span> en <span
+                        id="detailAnnee"></span></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped table-hover" id="detailTable"  >
+                    <thead>
+                    <tr>
+                        <th>Date de mutation</th>
+                        <th>Nature de mutation</th>
+                        <th>Valeur foncière</th>
+                        <th>Type de bien</th>
+                        <th>Surface réelle bâtie</th>
+                        <th>Nombre de pièces</th>
+                        <th>Surface du terrain</th>
+                    </tr>
+                    </thead>
+                    <tbody id="detailListe"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
 <main class="container-fluid">
     <div id="mapid"></div>
-    Données 2019 et 2020<br/>
 </main>
 <!-- Make sure you put this AFTER Leaflet's CSS -->
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
@@ -237,7 +269,7 @@
                 // Prix au metre carré
                 let uneCommunePrix = prixVentesCommunes[uneCommune.code];
                 if (uneCommunePrix) {
-                    popup += "<br/>Bien : " + uneCommunePrix.prixBienM2 + " €/m²<br/><em>Terrain : " + uneCommunePrix.prixTerrainM2 + " €/m²</em><br />" + uneCommunePrix.valeurs + " vente" + (uneCommunePrix.valeurs > 1 ? "s" : "");
+                    popup += "<br/>Bien : " + uneCommunePrix.prixBienM2 + " €/m²<br/><em>Terrain : " + uneCommunePrix.prixTerrainM2 + ' €/m²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim() + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
 
                     // Couleur de remplissage
                     couleur = uneCommunePrix.couleurBien;
@@ -280,6 +312,51 @@
             // Stocker le résultat
             prixVentesCommunes = JSON.parse(response);
             miseAjourCarte();
+        });
+    }
+
+    // Récupère les mutations foncières d'une commune
+    function ajaxGetDetailVentesParCommunes(codeCommune, nomCommune) {
+        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune, function (response) {
+            // Pointeur sur la table dans la modal
+            const maModalListe = document.getElementById('detailListe');
+            // Vider le contenu de la modal
+            while (maModalListe.firstChild) {
+                maModalListe.removeChild(maModalListe.firstChild);
+            }
+
+            // Ajouter les td au tr parent
+            function addTdToTrWithValue(monTr, maValue) {
+                let colonne = document.createElement('td');
+                colonne.innerText = maValue;
+                monTr.appendChild(colonne);
+            }
+
+            // Intégrer les données reçues
+            const listeMutations = JSON.parse(response);
+            listeMutations.forEach(uneMutation => {
+                // Ma ligne
+                let ligne = document.createElement('tr');
+                // Ses valeurs
+                addTdToTrWithValue(ligne, uneMutation.date_mutation);
+                addTdToTrWithValue(ligne, uneMutation.nature_mutation);
+                addTdToTrWithValue(ligne, uneMutation.valeur_fonciere);
+                addTdToTrWithValue(ligne, uneMutation.type_local);
+                addTdToTrWithValue(ligne, uneMutation.surface_reelle_bati);
+                addTdToTrWithValue(ligne, uneMutation.nombre_pieces_principales);
+                addTdToTrWithValue(ligne, uneMutation.surface_terrain);
+
+                // Insérer la ligne
+                maModalListe.appendChild(ligne);
+            });
+            // Titre de la modal
+            document.getElementById("detailTypeBien").innerText = typeBien;
+            document.getElementById("detailNomVille").innerText = nomCommune;
+            document.getElementById("detailAnnee").innerText = periode;
+
+            // Afficher la modal
+            let modalBS = new bootstrap.Modal(document.getElementById("modalDetailVentes"), {});
+            modalBS.show();
         });
     }
 
