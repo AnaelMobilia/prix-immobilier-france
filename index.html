@@ -163,7 +163,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalDetailVentesLabel">Détails des ventes de <span
+                <h2 class="modal-title" id="modalDetailVentesLabel">Détails des mutations de <span
                         id="detailTypeBien"></span> à <span id="detailNomVille"></span> en <span
                         id="detailAnnee"></span></h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -269,7 +269,7 @@
                 // Prix au metre carré
                 let uneCommunePrix = prixVentesCommunes[uneCommune.code];
                 if (uneCommunePrix) {
-                    popup += "<br/>Bien : " + uneCommunePrix.prixBienM2 + " €/m²<br/><em>Terrain : " + uneCommunePrix.prixTerrainM2 + ' €/m²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim() + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
+                    popup += "<br/>Bien : " +  new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(uneCommunePrix.prixBienM2) + "/m²<br/><em>Terrain : " + new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(uneCommunePrix.prixTerrainM2) + 'm²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim() + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
 
                     // Couleur de remplissage
                     couleur = uneCommunePrix.couleurBien;
@@ -338,13 +338,13 @@
                 // Ma ligne
                 let ligne = document.createElement('tr');
                 // Ses valeurs
-                addTdToTrWithValue(ligne, uneMutation.date_mutation);
+                addTdToTrWithValue(ligne, new Date(uneMutation.date_mutation).toLocaleDateString('fr-FR'));
                 addTdToTrWithValue(ligne, uneMutation.nature_mutation);
-                addTdToTrWithValue(ligne, uneMutation.valeur_fonciere);
+                addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(uneMutation.valeur_fonciere));
                 addTdToTrWithValue(ligne, uneMutation.type_local);
-                addTdToTrWithValue(ligne, uneMutation.surface_reelle_bati);
+                addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR').format(uneMutation.surface_reelle_bati) + ' m²');
                 addTdToTrWithValue(ligne, uneMutation.nombre_pieces_principales);
-                addTdToTrWithValue(ligne, uneMutation.surface_terrain);
+                addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR').format(uneMutation.surface_terrain) + ' m²');
 
                 // Insérer la ligne
                 maModalListe.appendChild(ligne);
