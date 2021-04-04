@@ -19,10 +19,25 @@
  */
 
 /**
- * Ajax - Récupérer la liste des département
+ * Ajax - Récupérer le contenu d'un select
  */
 
 require "../config/config.php";
 
+$type = $_REQUEST["type"];
+// Types possibles : departements, annees
+if (!ctype_alnum($type)
+    || !in_array($type, ["departements", "annees"])) {
+    header("HTTP/1.1 404 Not Found");
+    die("ERREUR");
+}
+
 header('Content-Type: application/json');
-echo geoApiGouvFr::getListeDepartements();
+switch ($type) {
+    case "departements":
+        echo geoApiGouvFr::getListeDepartements();
+        break;
+    case "annees":
+        echo etalabDvf::getPossibleYears();
+        break;
+}

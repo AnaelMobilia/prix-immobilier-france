@@ -27,10 +27,9 @@ require "config/config.php";
 // Mise à jour des données "géographiques"
 geoApiGouvFr::mettreAJourLesDonnees();
 
-// Récupération des prix des deux dernières années pour chaque département
-$dates = ["2019", "2020"];
+// Récupération des prix des dernières années pour chaque département
 foreach (json_decode(geoApiGouvFr::getListeDepartements()) as $unDep) {
-    foreach ($dates as $uneAnnee) {
+    foreach (json_decode(etalabDvf::getPossibleYears()) as $uneAnnee) {
         etalabDvf::telechargerVentes($uneAnnee, $unDep->code);
     }
 }

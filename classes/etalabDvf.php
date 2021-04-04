@@ -39,20 +39,6 @@ class etalabDvf
 
     /**
      * Chemin du fichier de liste des ventes
-     * @param int $annee Année
-     * @param string $departement Département
-     * @return string CSV
-     */
-    public static function getFileListeVentes(string $departement, int $annee): string
-    {
-        if (!in_array($departement, self::departementsHs)) {
-            return self::pathDepartements . $departement . "-" . $annee;
-        }
-        return "";
-    }
-
-    /**
-     * Chemin du fichier de liste des ventes
      * @param int[] $annee Année
      * @param string[] $departement Département
      * @param string $typeBien Type de bien
@@ -64,7 +50,7 @@ class etalabDvf
 
         foreach ($departement as $unDep) {
             // Ne pas prendre les départements HS
-            if(in_array($unDep, self::departementsHs)) {
+            if (in_array($unDep, self::departementsHs)) {
                 continue;
             }
 
@@ -192,13 +178,29 @@ class etalabDvf
             // Supprimer les lignes incohérentes
             $tabFinal = [];
             foreach ($tabMutations as $uneMutation) {
-                if($uneMutation["type_local"] === "") {
+                if ($uneMutation["type_local"] === "") {
                     continue;
                 }
                 $tabFinal[] = $uneMutation;
             }
             // Enregistrer les données compilées
             file_put_contents($fichierCompile, json_encode($tabFinal));
+            // Supprimer le fichier "brut"
+            unlink($fichierBrut);
         }
+    }
+
+    /**
+     * Liste des années disponibles
+     * Règles https://www.data.gouv.fr/fr/datasets/r/d573456c-76eb-4276-b91c-e6b9c89d6656
+     * @return string JSON
+     */
+    public static function getPossibleYears(): string
+    {
+        // Premières données en 2014 -> https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/
+        // A partir de mai (Chaque année, une première diffusion sera effectuée en avril) => année en cours
+        $anneeFin = (date("m") >= 5 ? date("Y") : date("Y") - 1);
+
+        return json_encode(range(2014, $anneeFin));
     }
 }
