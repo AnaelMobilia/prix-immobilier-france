@@ -376,8 +376,6 @@
 
     // Compléter les select départements et années
     function initialiserSelects() {
-        let finChargement = false;
-
         // Type de bien - Définir la valeur selectionnée
         $('#typeBien').selectpicker("val", typeBien);
         // Liste des départements
@@ -399,13 +397,6 @@
             // Notifier bootstrap-select
             $('.selectpicker').selectpicker('refresh');
             $('#departement').selectpicker("val", departement.split('-'));
-
-            // Afficher les données une fois les deux chargement finis
-            if(finChargement) {
-                refreshDatas();
-            } else {
-                finChargement = true;
-            }
         });
         // Liste des années
         ajaxGet("ajax/getContenuSelect.php?type=annees", function (response) {
@@ -422,13 +413,6 @@
             // Notifier bootstrap-select
             $('.selectpicker').selectpicker('refresh');
             $('#periode').selectpicker("val", periode.split('-'));
-
-            // Afficher les données une fois les deux chargement finis
-            if(finChargement) {
-                refreshDatas();
-            } else {
-                finChargement = true;
-            }
         });
     }
 
