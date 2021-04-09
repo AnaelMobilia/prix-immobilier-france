@@ -58,11 +58,8 @@ foreach (json_decode($datasCsv) as $uneTransaction) {
 }
 
 // Calculer €/m² par commune + fourchette de prix
-$prixMinBien = 999999;
-$prixMaxBien = 0;
-$prixMinTerrain = 999999;
-$prixMaxTerrain = 0;
-$tabPrix = [];
+$tabPrixBien = [];
+$tabPrixTerrain = [];
 
 foreach ($communes as $codeCommune => $valeurs) {
     $prixBienM2 = 0;
@@ -79,12 +76,15 @@ foreach ($communes as $codeCommune => $valeurs) {
     $communes[$codeCommune]["valeurs"] = $valeurs["valeurs"];
 
     // Liste des prix
-    $tabPrix[] = $prixBienM2;
+    $tabPrixBien[] = $prixBienM2;
+    $tabPrixTerrain[] = $prixTerrainM2;
 }
 
 // Calcul des bornes de prix au 5ème et 97ème percentile pour supprimer l'impact des extrêmes
-$prixMinBien = heatmap::getMinValue($tabPrix);
-$prixMaxBien = heatmap::getMaxValue($tabPrix);
+$prixMinBien = heatmap::getMinValue($tabPrixBien);
+$prixMaxBien = heatmap::getMaxValue($tabPrixBien);
+$prixMinTerrain = heatmap::getMinValue($tabPrixTerrain);
+$prixMaxTerrain = heatmap::getMaxValue($tabPrixTerrain);
 
 
 // Calcul des résultats
