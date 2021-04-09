@@ -31,9 +31,11 @@
         html, body {
             height: 100%;
         }
+
         .container-fluid {
             padding: 0;
         }
+
         /* Carte Leaflet générale */
         #mapid {
             margin-top: 56px;
@@ -207,7 +209,7 @@
     <div id="mapid" class="flex-fill"></div>
     <div id="echellePrix" class="progress position-relative">
         <p id="prixMin" class="text-light fw-bolder position-absolute top-0 start-0"></p>
-        <p id="prixMax" class="text-light fw-bolder position-absolute top-0 end-0">;</p>
+        <p id="prixMax" class="text-light fw-bolder position-absolute top-0 end-0"></p>
     </div>
 </div>
 <!-- Make sure you put this AFTER Leaflet's CSS -->
@@ -317,7 +319,6 @@
             // Mise à jour de l'échelle de prix (\u00a0 <=> &nbsp;)
             document.getElementById('prixMin').innerText = "\u00a0" + formaterPrix(prixVentesCommunes[0].prixMinBien, 0);
             document.getElementById('prixMax').innerText = formaterPrix(prixVentesCommunes[0].prixMaxBien, 0) + "\u00a0";
-
         }
     }
 
