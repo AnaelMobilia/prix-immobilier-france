@@ -440,7 +440,14 @@
         params.set('typeBien', typeBien);
         params.set('departement', departement);
         params.set('periode', periode);
-        window.history.replaceState({}, '', `${location.pathname}?${params}`);
+        try {
+            window.history.replaceState({}, '', `${location.pathname}?${params}`);
+        } catch (e) {
+            // DOMException si on manipule l'historique d'un fichier ouvert en local (file:///)
+            if (e instanceof DOMException) {
+                console.log("Exception DOMException : " + e.message)
+            }
+        }
         // Effacer les anciennes données
         mymap.removeLayer(layerGeoJson);
         layerGeoJson = new L.LayerGroup();
