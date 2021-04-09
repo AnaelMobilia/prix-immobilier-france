@@ -174,7 +174,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalDetailVentesLabel">Détails des mutations de <span
+                <h2 class="modal-title" id="modalDetailVentesLabel">Mutations <span
                         id="detailTypeBien"></span> à <span id="detailNomVille"></span> en <span
                         id="detailAnnee"></span></h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -374,7 +374,15 @@
                 maModalListe.appendChild(ligne);
             });
             // Titre de la modal
-            document.getElementById("detailTypeBien").innerText = typeBien;
+            let texteType = ""
+            if(typeBien==="Maison") {
+                texteType = "de maisons";
+            } else {
+                if (typeBien==="Appartement") {
+                    texteType = "d'appartements";
+                }
+            }
+            document.getElementById("detailTypeBien").innerText = texteType;
             document.getElementById("detailNomVille").innerText = nomCommune;
             document.getElementById("detailAnnee").innerText = periode;
 
