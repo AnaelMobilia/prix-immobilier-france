@@ -396,7 +396,7 @@
                 // Remplir le select
                 let opt = document.createElement('option');
                 if (unDep.actif === "0") {
-                    opt.disabled = "disabled";
+                    opt.disabled = true;
                 }
                 opt.value = unDep.code;
                 opt.innerHTML = unDep.code + " - " + unDep.nom;
