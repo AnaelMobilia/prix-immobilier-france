@@ -178,9 +178,8 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalDetailVentesLabel">Mutations <span
-                        id="detailTypeBien"></span> à <span id="detailNomVille"></span> en <span
-                        id="detailAnnee"></span></h2>
+                <h2 class="modal-title" id="modalDetailVentesLabel">Mutations <span id="detailTypeBien"></span> à <span
+                        id="detailNomVille"></span> <span id="detailAnnee"></span></h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
@@ -385,7 +384,27 @@
             }
             document.getElementById("detailTypeBien").innerText = texteType;
             document.getElementById("detailNomVille").innerText = nomCommune;
-            document.getElementById("detailAnnee").innerText = periode;
+            let texteDate = "";
+            if (periode.indexOf("-") === -1) {
+                texteDate = "en " + periode;
+            } else {
+                let dates = periode.split("-");
+
+                let dateSeSuivent = true;
+                for (let i = 1; i < dates.length; i++) {
+                    if (parseInt(dates[i - 1], 10) + 1 !== parseInt(dates[i])) {
+                        dateSeSuivent = false;
+                    }
+                }
+
+                if (dateSeSuivent) {
+                    texteDate = "de " + dates[0] + " à " + dates[dates.length - 1];
+                } else {
+                    texteDate = "en " + periode.replaceAll("-", ", ");
+                }
+
+            }
+            document.getElementById("detailAnnee").innerText = texteDate;
 
             // Afficher la modal
             let modalBS = new bootstrap.Modal(document.getElementById("modalDetailVentes"), {});
