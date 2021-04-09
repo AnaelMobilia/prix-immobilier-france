@@ -82,45 +82,9 @@ foreach ($communes as $codeCommune => $valeurs) {
     $tabPrix[] = $prixBienM2;
 }
 
-// Trier la liste des prix
-sort($tabPrix);
-
 // Calcul des bornes de prix au 5ème et 97ème percentile pour supprimer l'impact des extrêmes
-$prixMinBien = $tabPrix[floor(5/100*sizeof($tabPrix))];
-$prixMaxBien = $tabPrix[floor(97/100*sizeof($tabPrix))];
-
-/**
- * Calcule la valeur de la couleur pour la heatmap
- * @param int $value valeur actuelle
- * @param int $minValue valeur minimale
- * @param int $maxValue valeur maximale
- * @return string RGB à utiliser
- */
-function heatmapColor(int $value, int $minValue, int $maxValue): string
-{
-    // Gestion des valeurs extrêmes
-    if ($value <= $minValue) {
-        return "00FF00";
-    }
-    if ($value >= $maxValue) {
-        return "FF0000";
-    }
-
-    // On va de FF0000 à 00FF00 => 510 valeurs possibles
-    // Calcul de la valeur d'un palier de couleur
-    $palier = ($maxValue - $minValue) / 510;
-
-    // Calcul du nombre de paliers à effectuer
-    $nbPaliers = round(($value - $minValue) / $palier);
-
-    if ($nbPaliers <= 255) {
-        // Nuances de verts
-        return "00" . dechex(255 - $nbPaliers) . "00";
-    } else {
-        // Nuances de rouge
-        return dechex($nbPaliers - 255) . "0000";
-    }
-}
+$prixMinBien = heatmap::getMinValue($tabPrix);
+$prixMaxBien = heatmap::getMaxValue($tabPrix);
 
 
 // Calcul des résultats
@@ -132,8 +96,8 @@ foreach ($communes as $codeCommune => $valeurs) {
         "codeInsee" => $codeCommune,
         "prixBienM2" => $valeurs["prixBienM2"],
         "prixTerrainM2" => $valeurs["prixTerrainM2"],
-        "couleurBien" => "#" . heatmapColor($valeurs["prixBienM2"], $prixMinBien, $prixMaxBien),
-        "couleurTerrain" => "#" . heatmapColor($valeurs["prixTerrainM2"], $prixMinTerrain, $prixMaxTerrain),
+        "couleurBien" => "#" . heatmap::heatmapColor($valeurs["prixBienM2"], $prixMinBien, $prixMaxBien),
+        "couleurTerrain" => "#" . heatmap::heatmapColor($valeurs["prixTerrainM2"], $prixMinTerrain, $prixMaxTerrain),
         "valeurs" => $valeurs["valeurs"],
     ];
     $resultats[$codeCommune] = $tabTmp;
