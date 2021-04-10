@@ -43,11 +43,20 @@
             z-index: 1;
         }
 
+        /* Carte Leaflet des ventes sur une commune */
+        #minimapid {
+            border: 1px solid grey;
+            height: 75vh;
+        }
+
         /* Echelle de prix */
-        #echellePrix {
+        #echellePrixCarte {
             position: absolute !important;
             bottom: 5px;
             left: 5px;
+        }
+
+        .heatmap {
             height: 20px;
             width: 250px;
             border: 1px solid white;
@@ -143,6 +152,9 @@
                     (Appartement, Maison, Local industriel / commercial ou assimilé) ne sont pas prises en compte. En
                     effet, il n'est pas possible de séparer la valeur foncière en fonction du type du bien dans ce
                     cas.</p>
+                <h4>Une mutation n'apparaît pas sur la carte de la commune</h4>
+                <p>Certaines mutations ne possédent pas de coordonnées GPS. Elles ne sont donc pas affichées sur la
+                    carte de la commune. Elles sont bien présentes dans la liste des mutations</p>
                 <h3>Sources de données</h3>
                 <p>Deux sources de données sont utilisées de manières croisées par l'outil.</p>
                 <h4>Demandes de valeurs foncières géolocalisées</h4>
@@ -183,22 +195,44 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped table-hover" id="detailTable">
-                    <thead>
-                    <tr>
-                        <th>Date de mutation</th>
-                        <th>Nature de mutation</th>
-                        <th>Valeur foncière</th>
-                        <th>Type de bien</th>
-                        <th>Surface réelle bâtie</th>
-                        <th>Nombre de pièces</th>
-                        <th>Surface du terrain</th>
-                    </tr>
-                    </thead>
-                    <tbody id="detailListe"></tbody>
-                </table>
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="liste-tab" data-bs-toggle="tab" data-bs-target="#liste"
+                                type="button" role="tab" aria-controls="liste" aria-selected="true">Liste
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="carte-tab" data-bs-toggle="tab" data-bs-target="#carte"
+                                type="button" role="tab" aria-controls="carte" aria-selected="false">Carte
+                        </button>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="liste" role="tabpanel" aria-labelledby="liste-tab">
+                        <table class="table table-striped table-hover" id="detailTable">
+                            <thead>
+                            <tr>
+                                <th>Date de mutation</th>
+                                <th>Nature de mutation</th>
+                                <th>Valeur foncière</th>
+                                <th>Type de bien</th>
+                                <th>Surface réelle bâtie</th>
+                                <th>Nombre de pièces</th>
+                                <th>Surface du terrain</th>
+                            </tr>
+                            </thead>
+                            <tbody id="detailListe"></tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="carte" role="tabpanel" aria-labelledby="carte-tab">
+                        <div id="minimapid" class="flex-fill"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
+                <div id="echellePrixMiniCarte" class="progress position-relative heatmap me-auto">
+                    <p id="prixMinMiniCarte" class="text-light fw-bolder position-absolute top-0 start-0"></p>
+                    <p id="prixMaxMiniCarte" class="text-light fw-bolder position-absolute top-0 end-0"></p>
+                </div>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
             </div>
         </div>
@@ -206,9 +240,9 @@
 </div>
 <div class="container-fluid h-100 d-flex">
     <div id="mapid" class="flex-fill"></div>
-    <div id="echellePrix" class="progress position-relative">
-        <p id="prixMin" class="text-light fw-bolder position-absolute top-0 start-0"></p>
-        <p id="prixMax" class="text-light fw-bolder position-absolute top-0 end-0"></p>
+    <div id="echellePrixCarte" class="progress position-relative heatmap">
+        <p id="prixMinCarte" class="text-light fw-bolder position-absolute top-0 start-0"></p>
+        <p id="prixMaxCarte" class="text-light fw-bolder position-absolute top-0 end-0"></p>
     </div>
 </div>
 <!-- Make sure you put this AFTER Leaflet's CSS -->
@@ -226,6 +260,14 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(mymap);
+    let layermapGeoJson = new L.LayerGroup();
+
+    // Gestion de la mini carte
+    const myminimap = L.map('minimapid').setView([45.1825, 5.7301], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(myminimap);
+    let layerminimapGeoJson = new L.LayerGroup();
 
     // Gestion des paramètres
     let typeBien = "";
@@ -280,7 +322,7 @@
     function miseAjourCarte() {
         // Si on a toutes les données
         if (contoursCommunes !== "" && prixVentesCommunes !== "") {
-            layerGeoJson.addTo(mymap);
+            layermapGeoJson.addTo(mymap);
             centrageMaxPopulation = 0;
             contoursCommunes.forEach(uneCommune => {
                 // Couleur de remplissage
@@ -309,15 +351,15 @@
                     contour[i].reverse();
                 }
                 // Traits bleus
-                layerGeoJson.addLayer(L.geoJson(contour));
+                layermapGeoJson.addLayer(L.geoJson(contour));
                 // Intérieur + liseré
-                layerGeoJson.addLayer(L.geoJson(contour, {style: getStyle(couleur)}).bindPopup(popup,));
+                layermapGeoJson.addLayer(L.geoJson(contour, {style: getStyle(couleur)}).bindPopup(popup));
             });
             // Centrage de l'affichage
             mymap.flyTo(centrageCoordonnees, 10);
             // Mise à jour de l'échelle de prix (\u00a0 <=> &nbsp;)
-            document.getElementById('prixMin').innerText = "\u00a0" + formaterPrix(prixVentesCommunes[0].prixMinBien, 0);
-            document.getElementById('prixMax').innerText = formaterPrix(prixVentesCommunes[0].prixMaxBien, 0) + "\u00a0";
+            document.getElementById('prixMinCarte').innerText = "\u00a0" + formaterPrix(prixVentesCommunes[0].prixMinBien, 0);
+            document.getElementById('prixMaxCarte').innerText = formaterPrix(prixVentesCommunes[0].prixMaxBien, 0) + "\u00a0";
         }
     }
 
@@ -342,6 +384,10 @@
     // Récupère les mutations foncières d'une commune
     function ajaxGetDetailVentesParCommunes(codeCommune, nomCommune) {
         ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune + '&periode=' + periode, function (response) {
+            // Réinitialisation du layer de la mini carte
+            myminimap.removeLayer(layerminimapGeoJson);
+            layerminimapGeoJson = new L.LayerGroup();
+
             // Pointeur sur la table dans la modal
             const maModalListe = document.getElementById('detailListe');
             // Vider le contenu de la modal
@@ -352,7 +398,7 @@
             // Ajouter les td au tr parent
             function addTdToTrWithValue(monTr, maValue) {
                 let colonne = document.createElement('td');
-                colonne.innerText = maValue;
+                colonne.innerHTML = maValue;
                 monTr.appendChild(colonne);
             }
 
@@ -364,7 +410,7 @@
                 // Ses valeurs
                 addTdToTrWithValue(ligne, new Date(uneMutation.date_mutation).toLocaleDateString('fr-FR'));
                 addTdToTrWithValue(ligne, uneMutation.nature_mutation);
-                addTdToTrWithValue(ligne, formaterPrix(uneMutation.valeur_fonciere, 0));
+                addTdToTrWithValue(ligne, formaterPrix(uneMutation.valeur_fonciere, 0) + ' <span style="color:#' + uneMutation.couleur + '"><small>' + formaterPrix(uneMutation.prixBienM2, 0) + ' /m²</small></span>');
                 addTdToTrWithValue(ligne, uneMutation.type_local);
                 addTdToTrWithValue(ligne, new Intl.NumberFormat('fr-FR').format(uneMutation.surface_reelle_bati) + ' m²');
                 addTdToTrWithValue(ligne, uneMutation.nombre_pieces_principales);
@@ -372,7 +418,45 @@
 
                 // Insérer la ligne
                 maModalListe.appendChild(ligne);
+
+                // Certaines mutations n'ont pas de coordonnées GPS
+                if (uneMutation.latitude !== "" && uneMutation.longitude !== "") {
+                    // Pop-up
+                    let popup = uneMutation.nature_mutation + ' du ' + new Date(uneMutation.date_mutation).toLocaleDateString('fr-FR') + ' : <b>' + formaterPrix(uneMutation.valeur_fonciere, 0) + '</b><br />' + uneMutation.type_local + ' de <b>' + new Intl.NumberFormat('fr-FR').format(uneMutation.surface_reelle_bati) + ' m²</b> - ' + uneMutation.nombre_pieces_principales + ' pièces - terrain <b>' + new Intl.NumberFormat('fr-FR').format(uneMutation.surface_terrain) + ' m²</b>';
+
+                    // Ajouter le point à la mini carte
+                    layerminimapGeoJson.addLayer(L.marker([uneMutation.latitude, uneMutation.longitude]).bindPopup(popup));
+                    layerminimapGeoJson.addLayer(L.circle([uneMutation.latitude, uneMutation.longitude], {
+                        color: '#' + uneMutation.couleur,
+                        fillColor: '#' + uneMutation.couleur,
+                        fillOpacity: 0.5,
+                        radius: 30,
+                    }));
+                }
             });
+            // Carte
+            let centre = [];
+            let contour = []
+            contoursCommunes.every(uneCommune => {
+                if (uneCommune.code === codeCommune) {
+                    centre = uneCommune.centre.coordinates.reverse();
+                    contour = uneCommune.contour;
+                    // break
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+            // Contours de la commune
+            for (let i = 0; i < contour.length; i++) {
+                // Coordonnées pas dans le même sens que la source
+                contour[i].reverse();
+            }
+            // Traits bleus
+            layerminimapGeoJson.addLayer(L.geoJson(contour));
+            myminimap.flyTo(centre, 13);
+            layerminimapGeoJson.addTo(myminimap);
+
             // Titre de la modal
             let texteType = ""
             if (typeBien === "Maison") {
@@ -405,6 +489,9 @@
 
             }
             document.getElementById("detailAnnee").innerText = texteDate;
+            // Mise à jour de l'échelle de prix (\u00a0 <=> &nbsp;)
+            document.getElementById('prixMinMiniCarte').innerText = "\u00a0" + formaterPrix(listeMutations[0].prixMinBien, 0);
+            document.getElementById('prixMaxMiniCarte').innerText = formaterPrix(listeMutations[0].prixMaxBien, 0) + "\u00a0";
 
             // Afficher la modal
             let modalBS = new bootstrap.Modal(document.getElementById("modalDetailVentes"), {});
@@ -469,8 +556,8 @@
             }
         }
         // Effacer les anciennes données
-        mymap.removeLayer(layerGeoJson);
-        layerGeoJson = new L.LayerGroup();
+        mymap.removeLayer(layermapGeoJson);
+        layermapGeoJson = new L.LayerGroup();
         contoursCommunes = "";
         prixVentesCommunes = "";
         // Récupérer les nouvelles données
@@ -501,6 +588,13 @@
     initialiserSelects();
     // Dessiner les informations pour l'Isère / Maison
     refreshDatas();
+
+    // Redessiner la mini-carte à l'affichage (hidden précédement => pas de dimensions)
+    let tabMinicarte = document.getElementById("carte-tab");
+    tabMinicarte.addEventListener('shown.bs.tab', function (event) {
+        myminimap.invalidateSize();
+    })
+
 
 </script>
 </body>

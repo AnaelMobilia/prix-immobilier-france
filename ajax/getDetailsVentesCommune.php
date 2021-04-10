@@ -40,15 +40,36 @@ if (!ctype_alnum(str_replace('-', '', $departement))
 
 // Traitement du fichier CSV
 $datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien);
-// Synthétiser les données par commune
-$ventes = [];
+
+// Récupérer les données de la commune
+$transactions = [];
+$tabPrixBien = [];
 foreach (json_decode($datasCsv) as $uneTransaction) {
-    // Filtrer sur le départemetn
-    if($codeCommune !== $uneTransaction->code_commune) {
+    // Filtrer sur la commune
+    if ($codeCommune !== $uneTransaction->code_commune) {
         continue;
-    };
-    $ventes[] = $uneTransaction;
+    }
+    $transactions[] = $uneTransaction;
+    // Enregistrer la valeur du m²
+    if ($uneTransaction->surface_reelle_bati > 0) {
+        $tabPrixBien[] = (int)round($uneTransaction->valeur_fonciere / $uneTransaction->surface_reelle_bati);
+    }
+}
+
+// Calcul des bornes de prix au 5ème et 97ème percentile pour supprimer l'impact des extrêmes
+$prixMinBien = heatmap::getMinValue($tabPrixBien);
+$prixMaxBien = heatmap::getMaxValue($tabPrixBien);
+
+// Calcul des résultats
+$resultats = [];
+foreach ($transactions as $uneTransaction) {
+    $prixBienM2 = (int)round($uneTransaction->valeur_fonciere / $uneTransaction->surface_reelle_bati);
+    $uneTransaction->couleur = heatmap::heatmapColor($prixBienM2, $prixMinBien, $prixMaxBien);
+    $uneTransaction->prixBienM2 = $prixBienM2;
+    $uneTransaction->prixMinBien = $prixMinBien;
+    $uneTransaction->prixMaxBien = $prixMaxBien;
+    $resultats[] = $uneTransaction;
 }
 
 header('Content-Type: application/json');
-echo json_encode($ventes);
+echo json_encode($resultats);
