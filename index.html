@@ -314,6 +314,12 @@
         };
     }
 
+    // Convertit Lng/Lat en Lat/Lng
+    function getLatLng(tableau) {
+        let monTableau = tableau.slice()
+        return monTableau.reverse();
+    }
+
     // Contenu des appels Ajax
     let contoursCommunes = "";
     let prixVentesCommunes = "";
@@ -341,7 +347,7 @@
                 }
                 // Est-ce une ville principale du département ?
                 if (uneCommune.population > centrageMaxPopulation) {
-                    centrageCoordonnees = uneCommune.centre.coordinates.reverse();
+                    centrageCoordonnees = getLatLng(uneCommune.centre.coordinates);
                     centrageMaxPopulation = uneCommune.population;
                 }
                 // Bordures de la commune
@@ -439,7 +445,7 @@
             let contour = []
             contoursCommunes.every(uneCommune => {
                 if (uneCommune.code === codeCommune) {
-                    centre = uneCommune.centre.coordinates.reverse();
+                    centre = getLatLng(uneCommune.centre.coordinates);
                     contour = uneCommune.contour;
                     // break
                     return false;
