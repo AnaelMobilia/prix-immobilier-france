@@ -338,7 +338,7 @@
                 // Prix au metre carré
                 let uneCommunePrix = prixVentesCommunes[uneCommune.code];
                 if (uneCommunePrix) {
-                    popup += "<br/>Bien : " + formaterPrix(uneCommunePrix.prixBienM2, 0) + "/m²<br/><em>Terrain : " + formaterPrix(uneCommunePrix.prixTerrainM2, 0) + 'm²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim() + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
+                    popup += "<br/>Bien : " + formaterPrix(uneCommunePrix.prixBienM2, 0) + "/m²<br/><em>Terrain : " + formaterPrix(uneCommunePrix.prixTerrainM2, 0) + 'm²</em><br /><a href="#" onclick="ajaxGetDetailVentesParCommunes(\'' + uneCommune.code.trim() + '\', \'' + uneCommune.nom.trim().replaceAll("'", "\\'") + '\'); return false;" rel="nofollow">' + uneCommunePrix.valeurs + ' vente' + (uneCommunePrix.valeurs > 1 ? "s" : "") + "</a>";
 
                     // Couleur de remplissage
                     couleur = uneCommunePrix.couleurBien;
