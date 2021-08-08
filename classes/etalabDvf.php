@@ -26,7 +26,7 @@ class etalabDvf
     private const pathRegions = self::basePath . "regions/";
 
     // URL de l'API
-    private const apiBaseUrl = "https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/";
+    private const apiBaseUrl = "https://files.data.gouv.fr/geo-dvf/latest/csv/";
     private const apiUrlParamDepartements = "/departements/";
     private const apiEndUrl = ".csv.gz";
 
