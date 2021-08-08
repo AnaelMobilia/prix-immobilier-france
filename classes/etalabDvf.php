@@ -197,10 +197,10 @@ class etalabDvf
      */
     public static function getPossibleYears(): string
     {
-        // Premières données en 2014 -> https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/
+        // 5 années de données
         // A partir de mai (Chaque année, une première diffusion sera effectuée en avril) => année en cours
         $anneeFin = (date("m") >= 5 ? date("Y") : date("Y") - 1);
 
-        return json_encode(range(2014, $anneeFin));
+        return json_encode(range($anneeFin - 4, $anneeFin));
     }
 }
