@@ -137,11 +137,11 @@ class geoApiGouvFr
     public static function mettreAJourLesDonnees()
     {
         // Mettre à jour la liste des régions
-        echo "Liste des régions<br />";
+        echo "Liste des régions<br />\r\n";
         self::telechargerListeRegions();
 
         // Récupérer via l'API la liste des départements
-        echo "Liste des département<br />";
+        echo "Liste des département<br />\r\n";
         $jsonDepartements = self::telechargerListeDepartements();
 
         // Pour chaque département
@@ -150,7 +150,7 @@ class geoApiGouvFr
             usleep(100000);
 
             // Mettre à jour la liste des communes et les contours
-            echo "Liste des communes de " . $unDep->nom . "<br />";
+            echo "Liste des communes de " . $unDep->nom . "<br />\r\n";
             self::telechargerContoursCommunes($unDep->code);
         }
     }
