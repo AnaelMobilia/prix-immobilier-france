@@ -30,9 +30,13 @@ class heatmap
      */
     public static function getMinValue(array $tabPrix): int
     {
-        // Trier la liste des prix
-        sort($tabPrix);
-        return $tabPrix[floor(5 / 100 * sizeof($tabPrix))];
+        $monRetour = 0;
+        if (sizeof($tabPrix) > 0) {
+            // Trier la liste des prix
+            sort($tabPrix);
+            $monRetour = $tabPrix[floor(5 / 100 * sizeof($tabPrix))];
+        }
+        return $monRetour;
     }
 
     /**
@@ -42,9 +46,13 @@ class heatmap
      */
     public static function getMaxValue(array $tabPrix): int
     {
-        // Trier la liste des prix
-        sort($tabPrix);
-        return $tabPrix[floor(97 / 100 * sizeof($tabPrix))];
+        $monRetour = 0;
+        if (sizeof($tabPrix) > 0) {
+            // Trier la liste des prix
+            sort($tabPrix);
+            $monRetour = $tabPrix[floor(97 / 100 * sizeof($tabPrix))];
+        }
+        return $monRetour;
     }
 
 
