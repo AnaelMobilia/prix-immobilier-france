@@ -68,6 +68,11 @@ class etalabDvf
             }
         }
 
+        usort($monRetour, function (object $a, object $b): int {
+            // Avoir les mutations les plus récentes en premier
+            return strcmp($a->date_mutation, $b->date_mutation) * -1;
+        });
+
         return json_encode($monRetour);
     }
 
