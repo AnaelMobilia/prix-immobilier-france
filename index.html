@@ -277,11 +277,18 @@
     let centrageMaxPopulation = 0;
     let centrageCoordonnees = [45.3, 5.6];
 
+    // Calcul de la dernière année pour laquelle on a des données
+    // Voir etalabDvf::getPossibleYears()
+    let anneeDebut = new Date().getFullYear();
+    if ((new Date().getMonth() + 1) < 5) {
+        anneeDebut--;
+    }
+
     // Initialisation avec les paramètres passés dans l'URL
     const params = new URLSearchParams(location.search);
     typeBien = (params.get("typeBien") ? params.get("typeBien") : "Maison");
     departement = (params.get("departement") ? params.get("departement") : "38");
-    periode = (params.get("periode") ? params.get("periode") : "2019-2020");
+    periode = (params.get("periode") ? params.get("periode") : anneeDebut - 1 + "-" + anneeDebut);
 
     // Exécute un appel AJAX GET
     // Prend en paramètres l'URL cible et la fonction callback appelée en cas de succès
