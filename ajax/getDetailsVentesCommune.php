@@ -2,7 +2,7 @@
 /*
  * prix-immobilier-france permet de visusaliser le prix de l'immobilier
  * en France.
- * Copyright (C) 2021 - Anael MOBILIA
+ * Copyright (C) 2021 - 2022 - Anael MOBILIA
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
