@@ -356,6 +356,8 @@
     typeBien = (params.get("typeBien") ? params.get("typeBien") : "Maison");
     departement = (params.get("departement") ? params.get("departement") : "38");
     periode = (params.get("periode") ? params.get("periode") : anneeDebut - 1 + "-" + anneeDebut);
+    supHab = (params.get("supHab") ? params.get("supHab") : "");
+    supTerrain = (params.get("supTerrain") ? params.get("supTerrain") : "");
 
     // Exécute un appel AJAX GET
     // Prend en paramètres l'URL cible et la fonction callback appelée en cas de succès
@@ -688,8 +690,6 @@
     tabMinicarte.addEventListener('shown.bs.tab', function (event) {
         myminimap.invalidateSize();
     })
-
-
 </script>
 </body>
 </html>
