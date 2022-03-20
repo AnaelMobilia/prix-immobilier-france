@@ -255,8 +255,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalDetailVentesLabel">Mutations <span id="detailTypeBien"></span> à <span
-                        id="detailNomVille"></span> <span id="detailCriteres"></span></h2>
+                <h2 class="modal-title" id="modalDetailVentesLabel"><span id="detailCriteres"></span></h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
@@ -486,7 +485,9 @@
 
             // Intégrer les données reçues
             const listeMutations = JSON.parse(response);
+            let nbMutations = 0;
             listeMutations.forEach(uneMutation => {
+                nbMutations++;
                 // Ma ligne
                 let ligne = document.createElement('tr');
                 // Ses valeurs
@@ -548,11 +549,10 @@
                     texteType = "d'appartements";
                 }
             }
-            document.getElementById("detailTypeBien").innerText = texteType;
-            document.getElementById("detailNomVille").innerText = nomCommune;
-            let texteCriteres = "";
+            // Critères complémentaires
+            let texteCriteres = nbMutations + " mutations " + texteType + " à " + nomCommune + " ";
             if (periode.indexOf("-") === -1) {
-                texteCriteres = "en " + periode;
+                texteCriteres += "en " + periode;
             } else {
                 let dates = periode.split("-");
 
@@ -564,9 +564,9 @@
                 }
 
                 if (dateSeSuivent) {
-                    texteCriteres = "de " + dates[0] + " à " + dates[dates.length - 1];
+                    texteCriteres += "de " + dates[0] + " à " + dates[dates.length - 1];
                 } else {
-                    texteCriteres = "en " + periode.replaceAll("-", ", ");
+                    texteCriteres += "en " + periode.replaceAll("-", ", ");
                 }
 
             }
