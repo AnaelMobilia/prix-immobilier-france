@@ -618,8 +618,8 @@
         });
     }
 
-    // Compléter les select départements et années
-    function initialiserSelects() {
+    // Intialisée les forms + Compléter les select départements et années
+    function initialiserForms() {
         // Type de bien - Définir la valeur selectionnée
         $('#typeBien').selectpicker("val", typeBien);
         // Liste des départements
@@ -658,6 +658,14 @@
             $('.selectpicker').selectpicker('refresh');
             $('#periode').selectpicker("val", periode.split('-'));
         });
+        // Superficie réelle bâtie
+        let value = supHab.split("-");
+        document.getElementById("supHabMin").value = value[0];
+        document.getElementById("supHabMax").value = value[1];
+        // Superficie du terrain
+        value = supTerrain.split("-");
+        document.getElementById("supTerrainMin").value = value[0];
+        document.getElementById("supTerrainMax").value = value[1];
     }
 
     // Dessiner les données d'un département
@@ -717,8 +725,8 @@
         }).format(value);
     }
 
-    // Compléter les selects départements et années
-    initialiserSelects();
+    // Compléter les selects (départements + années) et les formulaires
+    initialiserForms();
     // Dessiner les informations pour l'Isère / Maison
     refreshDatas();
 
