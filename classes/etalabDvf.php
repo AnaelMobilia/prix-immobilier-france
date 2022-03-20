@@ -67,7 +67,7 @@ class etalabDvf
             $superficeTerrainMin = $superficeTerrain[0];
             $checkSuperficieTerrain = true;
         }
-        if (isset($superficeHabitable[1]) && is_numeric($superficeTerrain[1])) {
+        if (isset($superficeTerrain[1]) && is_numeric($superficeTerrain[1])) {
             $superficeTerrainMax = $superficeTerrain[1];
             $checkSuperficieTerrain = true;
         }
@@ -86,7 +86,8 @@ class etalabDvf
                     // Filtre sur le type de bien
                     if ($typeBien !== "" && $typeBien !== $uneMutation->type_local) {
                         continue;
-                    } elseif ($checkSuperficieHabitable) {
+                    }
+                    if ($checkSuperficieHabitable) {
                         // Filter sur la surface réelle bâtie
                         if (isset($superficeHabitableMin) && $uneMutation->surface_reelle_bati < $superficeHabitableMin) {
                             // Bien trop petit
@@ -95,7 +96,8 @@ class etalabDvf
                             // Bien trop grand
                             continue;
                         }
-                    } elseif ($checkSuperficieTerrain) {
+                    }
+                    if ($checkSuperficieTerrain) {
                         // Filter sur la surface du terrain
                         if (isset($superficeTerrainMin) && $uneMutation->surface_terrain < $superficeTerrainMin) {
                             // Terrain trop petit
