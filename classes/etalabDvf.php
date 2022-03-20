@@ -75,10 +75,10 @@ class etalabDvf
                         continue;
                     } elseif ($checkSuperficieHabitable) {
                         // Filter sur la surface réelle bâtie
-                        if(isset($superficeHabitableMin) && $uneMutation->surface_reelle_bati < $superficeHabitableMin) {
+                        if (isset($superficeHabitableMin) && $uneMutation->surface_reelle_bati < $superficeHabitableMin) {
                             // Bien trop petit
                             continue;
-                        } elseif(isset($superficeHabitableMax) && $uneMutation->surface_reelle_bati > $superficeHabitableMax) {
+                        } elseif (isset($superficeHabitableMax) && $uneMutation->surface_reelle_bati > $superficeHabitableMax) {
                             // Bien trop grand
                             continue;
                         }
