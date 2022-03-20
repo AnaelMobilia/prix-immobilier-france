@@ -104,11 +104,7 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <select id="periode" class="selectpicker show-tick" data-title="Période"
-                            multiple onchange="periode=getValuesSelected('periode');refreshDatas();">
-                        <optgroup label="Période" id="detailPeriode">
-                        </optgroup>
-                    </select>
+                    <a class="btn btn-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalCriteres">+ de critères</a>
                 </div>
             </div>
             <div class="ms-auto">
@@ -118,6 +114,28 @@
         </div>
     </div>
 </nav>
+<!-- Modal des critères de recherche -->
+<div class="modal fade" id="modalCriteres" tabindex="-1" aria-labelledby="modalCriteresLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalCriteresLabel">Critères de recherche</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <h3>Période des ventes</h3>
+                <select id="periode" class="selectpicker show-tick" data-title="Période"
+                        multiple onchange="periode=getValuesSelected('periode');">
+                    <optgroup label="Période" id="detailPeriode">
+                    </optgroup>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="refreshDatas();">Appliquer ces critères</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Modal A propos -->
 <div class="modal fade" id="modalAPropos" tabindex="-1" aria-labelledby="modalAProposLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
