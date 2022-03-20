@@ -152,6 +152,28 @@
                         </div>
                     </div>
                 </div>
+                <hr/>
+                <h3>Surface du terrain</h3>
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            A partir de
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control" placeholder="Superficie minimale"
+                                       id="supTerrainMin" onchange="supTerrain=getValuesForHtmlRange('supTerrain');">
+                                <span class="input-group-text">m²</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            Jusqu'à
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control" placeholder="Superficie maximale"
+                                       id="supTerrainMax" onchange="supTerrain=getValuesForHtmlRange('supTerrain');">
+                                <span class="input-group-text">m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="refreshDatas();">
@@ -317,6 +339,7 @@
     let departement = "";
     let periode = "";
     let supHab = ""
+    let supTerrain = ""
     // Centrage de la carte
     let centrageMaxPopulation = 0;
     let centrageCoordonnees = [45.3, 5.6];
@@ -431,7 +454,7 @@
 
     // Récupère les mutations foncières d'un département
     function ajaxGetVentesParCommunes() {
-        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien + '&periode=' + periode + '&supHab=' + supHab, function (response) {
+        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien + '&periode=' + periode + '&supHab=' + supHab + '&supTerrain=' + supTerrain, function (response) {
             // Stocker le résultat
             prixVentesCommunes = JSON.parse(response);
             miseAjourCarte();
@@ -440,7 +463,7 @@
 
     // Récupère les mutations foncières d'une commune
     function ajaxGetDetailVentesParCommunes(codeCommune, nomCommune) {
-        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune + '&periode=' + periode + '&supHab=' + supHab, function (response) {
+        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune + '&periode=' + periode + '&supHab=' + supHab + '&supTerrain=' + supTerrain, function (response) {
             // Réinitialisation du layer de la mini carte
             myminimap.removeLayer(layerminimapGeoJson);
             layerminimapGeoJson = new L.LayerGroup();
@@ -605,6 +628,7 @@
         params.set('departement', departement);
         params.set('periode', periode);
         params.set('supHab', supHab);
+        params.set('supTerrain', supTerrain);
         try {
             window.history.replaceState({}, '', `${location.pathname}?${params}`);
         } catch (e) {

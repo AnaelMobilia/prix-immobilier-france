@@ -43,12 +43,14 @@ class etalabDvf
      * @param string[] $departement Département
      * @param string $typeBien Type de bien
      * @param int[] $superficeHabitable Superficie habitable
+     * @param int[] $superficeTerrain Superficie du terrain
      * @return string JSON
      */
-    public static function getListeVentes(array $departement, array $annee, string $typeBien, array $superficeHabitable): string
+    public static function getListeVentes(array $departement, array $annee, string $typeBien, array $superficeHabitable, array$superficeTerrain): string
     {
         $monRetour = [];
 
+        // Superficie Habitable
         $checkSuperficieHabitable = false;
         if (isset($superficeHabitable[0]) && is_numeric($superficeHabitable[0])) {
             $superficeHabitableMin = $superficeHabitable[0];
@@ -57,6 +59,17 @@ class etalabDvf
         if (isset($superficeHabitable[1]) && is_numeric($superficeHabitable[1])) {
             $superficeHabitableMax = $superficeHabitable[1];
             $checkSuperficieHabitable = true;
+        }
+
+        // Superficie du terrain
+        $checkSuperficieTerrain = false;
+        if (isset($superficeTerrain[0]) && is_numeric($superficeTerrain[0])) {
+            $superficeTerrainMin = $superficeTerrain[0];
+            $checkSuperficieTerrain = true;
+        }
+        if (isset($superficeHabitable[1]) && is_numeric($superficeTerrain[1])) {
+            $superficeTerrainMax = $superficeTerrain[1];
+            $checkSuperficieTerrain = true;
         }
 
         foreach ($departement as $unDep) {
@@ -80,6 +93,15 @@ class etalabDvf
                             continue;
                         } elseif (isset($superficeHabitableMax) && $uneMutation->surface_reelle_bati > $superficeHabitableMax) {
                             // Bien trop grand
+                            continue;
+                        }
+                    } elseif ($checkSuperficieTerrain) {
+                        // Filter sur la surface du terrain
+                        if (isset($superficeTerrainMin) && $uneMutation->surface_terrain < $superficeTerrainMin) {
+                            // Terrain trop petit
+                            continue;
+                        } elseif (isset($superficeTerrainMax) && $uneMutation->surface_terrain > $superficeTerrainMax) {
+                            // Terrain trop grand
                             continue;
                         }
                     }
