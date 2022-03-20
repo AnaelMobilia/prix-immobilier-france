@@ -256,7 +256,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalDetailVentesLabel">Mutations <span id="detailTypeBien"></span> à <span
-                        id="detailNomVille"></span> <span id="detailAnnee"></span></h2>
+                        id="detailNomVille"></span> <span id="detailCriteres"></span></h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
@@ -550,9 +550,9 @@
             }
             document.getElementById("detailTypeBien").innerText = texteType;
             document.getElementById("detailNomVille").innerText = nomCommune;
-            let texteDate = "";
+            let texteCriteres = "";
             if (periode.indexOf("-") === -1) {
-                texteDate = "en " + periode;
+                texteCriteres = "en " + periode;
             } else {
                 let dates = periode.split("-");
 
@@ -564,13 +564,50 @@
                 }
 
                 if (dateSeSuivent) {
-                    texteDate = "de " + dates[0] + " à " + dates[dates.length - 1];
+                    texteCriteres = "de " + dates[0] + " à " + dates[dates.length - 1];
                 } else {
-                    texteDate = "en " + periode.replaceAll("-", ", ");
+                    texteCriteres = "en " + periode.replaceAll("-", ", ");
                 }
 
             }
-            document.getElementById("detailAnnee").innerText = texteDate;
+
+            // Critères de superficies (habitation ou jardin)
+            if (supHab !== "" || supTerrain !== "") {
+                function getTexteSuperficie(valeur, nom, unite) {
+                    let monRetour = "";
+                    let params = valeur.split("-");
+                    if (params.length !== 2) {
+                        // erreur
+                    } else {
+                        if (params[1] === "") {
+                            monRetour = nom + " d'au moins " + params[0] + unite;
+                        } else {
+                            if (params[0] === "") {
+                                monRetour = nom + " d'au plus " + params[1] + unite;
+                            } else {
+                                monRetour = nom + " de " + params[0] + " à " + params[1] + unite;
+                            }
+                        }
+                    }
+                    return monRetour;
+                }
+
+                texteDetails = "";
+                if (supHab !== "") {
+                    texteDetails = getTexteSuperficie(supHab, "superficie", "m²");
+                }
+                if (supTerrain !== "") {
+                    if (texteDetails !== "") {
+                        texteDetails += " - ";
+                    }
+                    texteDetails += getTexteSuperficie(supTerrain, "jardin", "m²");
+                }
+                if (texteDetails !== "") {
+                    texteCriteres += " <small>(" + texteDetails + ")</small>";
+                }
+            }
+
+            document.getElementById("detailCriteres").innerHTML = texteCriteres;
             // Mise à jour de l'échelle de prix (\u00a0 <=> &nbsp;)
             document.getElementById('prixMinMiniCarte').innerText = "\u00a0" + formaterPrix(listeMutations[0].prixMinBien, 0);
             document.getElementById('prixMaxMiniCarte').innerText = formaterPrix(listeMutations[0].prixMaxBien, 0) + "\u00a0";
