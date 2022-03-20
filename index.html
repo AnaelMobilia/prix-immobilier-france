@@ -104,7 +104,8 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <a class="btn btn-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalCriteres">+ de critères</a>
+                    <a class="btn btn-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalCriteres">+ de
+                        critères</a>
                 </div>
             </div>
             <div class="ms-auto">
@@ -129,9 +130,33 @@
                     <optgroup label="Période" id="detailPeriode">
                     </optgroup>
                 </select>
+                <hr/>
+                <h3>Surface réelle bâtie</h3>
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            A partir de
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control" placeholder="Superficie minimale"
+                                       id="supHabMin" onchange="supHab=getValuesForHtmlRange('supHab');">
+                                <span class="input-group-text">m²</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            Jusqu'à
+                            <div class="input-group mb-3">
+                                <input type="number" class="form-control" placeholder="Superficie maximale"
+                                       id="supHabMax" onchange="supHab=getValuesForHtmlRange('supHab');">
+                                <span class="input-group-text">m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="refreshDatas();">Appliquer ces critères</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="refreshDatas();">
+                    Appliquer ces critères
+                </button>
             </div>
         </div>
     </div>
@@ -291,6 +316,7 @@
     let typeBien = "";
     let departement = "";
     let periode = "";
+    let supHab = ""
     // Centrage de la carte
     let centrageMaxPopulation = 0;
     let centrageCoordonnees = [45.3, 5.6];
@@ -405,7 +431,7 @@
 
     // Récupère les mutations foncières d'un département
     function ajaxGetVentesParCommunes() {
-        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien + '&periode=' + periode, function (response) {
+        ajaxGet("ajax/getVentesCommunesDepartement.php?departement=" + departement + '&typeBien=' + typeBien + '&periode=' + periode + '&supHab=' + supHab, function (response) {
             // Stocker le résultat
             prixVentesCommunes = JSON.parse(response);
             miseAjourCarte();
@@ -414,7 +440,7 @@
 
     // Récupère les mutations foncières d'une commune
     function ajaxGetDetailVentesParCommunes(codeCommune, nomCommune) {
-        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune + '&periode=' + periode, function (response) {
+        ajaxGet("ajax/getDetailsVentesCommune.php?departement=" + departement + '&typeBien=' + typeBien + '&codeCommune=' + codeCommune + '&periode=' + periode + '&supHab=' + supHab, function (response) {
             // Réinitialisation du layer de la mini carte
             myminimap.removeLayer(layerminimapGeoJson);
             layerminimapGeoJson = new L.LayerGroup();
@@ -578,6 +604,7 @@
         params.set('typeBien', typeBien);
         params.set('departement', departement);
         params.set('periode', periode);
+        params.set('supHab', supHab);
         try {
             window.history.replaceState({}, '', `${location.pathname}?${params}`);
         } catch (e) {
@@ -604,6 +631,18 @@
             retour.push(collection[i].value)
         }
         return retour.join('-');
+    }
+
+    // Récupérer les valeurs d'une plage xxxMin - xxxMax
+    function getValuesForHtmlRange(prefixeElement) {
+        let elementMin = prefixeElement + "Min";
+        let elementMax = prefixeElement + "Max";
+        let retour = "";
+        let valueMin = document.getElementById(elementMin).value;
+        let valueMax = document.getElementById(elementMax).value;
+        retour = valueMin + "-" + valueMax;
+
+        return retour;
     }
 
     // Formater un prix

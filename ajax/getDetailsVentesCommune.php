@@ -28,18 +28,20 @@ $departement = $_REQUEST["departement"];
 $typeBien = $_REQUEST["typeBien"];
 $codeCommune = $_REQUEST["codeCommune"];
 $periode = $_REQUEST["periode"];
+$supHab = $_REQUEST["supHab"] ?? "";
 // Cas d'erreur
 if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($typeBien) && !ctype_alnum($typeBien))
     || !ctype_alnum($codeCommune)
     || !ctype_alnum(str_replace('-', '', $periode))
+    || (!empty($supHab) && !ctype_alnum(str_replace('-', '', $supHab)))
 ) {
     header("HTTP/1.1 404 Not Found");
     die("ERREUR");
 }
 
 // Traitement du fichier CSV
-$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien);
+$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien,  explode('-', $supHab));
 
 // Récupérer les données de la commune
 $transactions = [];

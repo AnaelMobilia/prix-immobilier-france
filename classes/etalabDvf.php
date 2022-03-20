@@ -42,11 +42,22 @@ class etalabDvf
      * @param int[] $annee Année
      * @param string[] $departement Département
      * @param string $typeBien Type de bien
+     * @param int[] $superficeHabitable Superficie habitable
      * @return string JSON
      */
-    public static function getListeVentes(array $departement, array $annee, string $typeBien): string
+    public static function getListeVentes(array $departement, array $annee, string $typeBien, array $superficeHabitable): string
     {
         $monRetour = [];
+
+        $checkSuperficieHabitable = false;
+        if (isset($superficeHabitable[0]) && is_numeric($superficeHabitable[0])) {
+            $superficeHabitableMin = $superficeHabitable[0];
+            $checkSuperficieHabitable = true;
+        }
+        if (isset($superficeHabitable[1]) && is_numeric($superficeHabitable[1])) {
+            $superficeHabitableMax = $superficeHabitable[1];
+            $checkSuperficieHabitable = true;
+        }
 
         foreach ($departement as $unDep) {
             // Ne pas prendre les départements HS
@@ -62,6 +73,15 @@ class etalabDvf
                     // Filtre sur le type de bien
                     if ($typeBien !== "" && $typeBien !== $uneMutation->type_local) {
                         continue;
+                    } elseif ($checkSuperficieHabitable) {
+                        // Filter sur la surface réelle bâtie
+                        if(isset($superficeHabitableMin) && $uneMutation->surface_reelle_bati < $superficeHabitableMin) {
+                            // Bien trop petit
+                            continue;
+                        } elseif(isset($superficeHabitableMax) && $uneMutation->surface_reelle_bati > $superficeHabitableMax) {
+                            // Bien trop grand
+                            continue;
+                        }
                     }
                     $monRetour[] = $uneMutation;
                 }

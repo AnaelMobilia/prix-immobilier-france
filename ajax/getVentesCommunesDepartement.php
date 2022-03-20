@@ -19,24 +19,28 @@
  */
 
 /**
- * Récupération des prix de ventes des communes d'un département
+ * Ajax - Récupération des prix de ventes des communes d'un département
  */
+
 require "../config/config.php";
 
 $departement = $_REQUEST["departement"];
 $typeBien = $_REQUEST["typeBien"];
 $periode = $_REQUEST["periode"];
+$supHab = $_REQUEST["supHab"] ?? "";
 // Cas d'erreur
 if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($typeBien) && !ctype_alnum($typeBien))
     || !ctype_alnum(str_replace('-', '', $periode))
+    || (!empty($supHab) && !ctype_alnum(str_replace('-', '', $supHab)))
 ) {
     header("HTTP/1.1 404 Not Found");
     die("ERREUR");
 }
 
 // Traitement du fichier CSV
-$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien);
+$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien,  explode('-', $supHab));
+
 // Synthétiser les données par commune
 $communes = [];
 foreach (json_decode($datasCsv) as $uneTransaction) {
