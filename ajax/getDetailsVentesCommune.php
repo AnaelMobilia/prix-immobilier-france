@@ -41,7 +41,7 @@ if (!ctype_alnum(str_replace('-', '', $departement))
 }
 
 // Traitement du fichier CSV
-$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien,  explode('-', $supHab));
+$datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $periode), $typeBien, explode('-', $supHab));
 
 // Récupérer les données de la commune
 $transactions = [];
