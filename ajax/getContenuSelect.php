@@ -36,6 +36,6 @@ switch ($type) {
         echo geoApiGouvFr::getListeDepartements();
         break;
     case 'annees':
-        echo etalabDvf::getPossibleYears();
+        echo etalabDvf::getPossibleYears(false);
         break;
 }

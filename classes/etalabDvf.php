@@ -27,6 +27,8 @@ class etalabDvf
 
     // URL de l'API
     private const apiBaseUrl = 'https://files.data.gouv.fr/geo-dvf/latest/csv/';
+    // Pour "remonter" dans le temps ;-)
+    //private const apiBaseUrl = 'https://files.opendatarchives.fr/cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/';
     private const apiUrlParamDepartements = '/departements/';
     private const apiEndUrl = '.csv.gz';
 
@@ -175,7 +177,8 @@ class etalabDvf
 
                 // Vérification du type_local
                 if (
-                    !in_array($data[30], self::DVFtypeLocal, true)
+                    !isset($data[30])
+                    || !in_array($data[30], self::DVFtypeLocal, true)
                     || ($uneMutation['type_local'] === self::DVFtypeLocalAppart && $data[30] === self::DVFtypeLocalMaison)
                     || ($uneMutation['type_local'] === self::DVFtypeLocalMaison && $data[30] === self::DVFtypeLocalAppart)
                 ) {
@@ -247,12 +250,18 @@ class etalabDvf
      * Règles https://www.data.gouv.fr/fr/datasets/r/d573456c-76eb-4276-b91c-e6b9c89d6656
      * @return string JSON
      */
-    public static function getPossibleYears(): string
+    public static function getPossibleYears(bool $forDownload = true): string
     {
-        // 5 années de données
+        // En téléchargement public, 5 années de données
         // A partir de mai (Chaque année, une première diffusion sera effectuée en avril) => année en cours
         $anneeFin = (date('m') >= 5 ? date('Y') : date('Y') - 1);
+        if ($forDownload) {
+            $anneeDebut = $anneeFin - 4;
+        } else {
+            // Mise en opendata en 2019, avec 5 ans de profondeur
+            $anneeDebut = 2014;
+        }
 
-        return json_encode(range($anneeFin - 4, $anneeFin), JSON_THROW_ON_ERROR);
+        return json_encode(range($anneeDebut, $anneeFin), JSON_THROW_ON_ERROR);
     }
 }
