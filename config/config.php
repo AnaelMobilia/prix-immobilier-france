@@ -39,3 +39,22 @@ spl_autoload_register(
         }
     }
 );
+
+// Gestion des erreurs
+error_reporting(E_ALL);
+
+/**
+ * Gestion des exceptions de l'application
+ * @param Throwable $exception
+ */
+function exception_handler(Throwable $exception): void
+{
+    // Afficher l'erreur
+    echo '<pre>';
+    print_r($exception->getMessage());
+    echo '<br /><br /><hr /><br />';
+    print_r($exception->getTraceAsString());
+    echo '</pre>';
+}
+
+set_exception_handler('exception_handler');
