@@ -31,11 +31,11 @@ $supHab = $_REQUEST['supHab'] ?? '';
 $supTerrain = $_REQUEST['supTerrain'] ?? '';
 // Cas d'erreur
 if (
-    !preg_match('#^[0-9AB-]$#', $departement)
+    !preg_match('#^[0-9AB-]+$#', $departement)
     || ($typeBien !== '' && !ctype_alnum($typeBien))
-    || !preg_match('#^[0-9-]$#', $periode)
-    || ($supHab !== '' && !preg_match('#^[0-9-]$#', $supHab))
-    || ($supTerrain !== '' && !preg_match('#^[0-9-]$#', $supTerrain))
+    || !preg_match('#^[0-9-]+$#', $periode)
+    || ($supHab !== '' && !preg_match('#^[0-9-]+$#', $supHab))
+    || ($supTerrain !== '' && !preg_match('#^[0-9-]+$#', $supTerrain))
 ) {
     header('HTTP/1.1 404 Not Found');
     die('ERREUR');
