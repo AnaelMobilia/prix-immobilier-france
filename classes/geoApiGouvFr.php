@@ -65,20 +65,20 @@ class geoApiGouvFr
     {
         $datas = api::getContenuFichier(self::listeDepartements);
         $listeDep = [];
-        foreach (json_decode($datas) as $unDep) {
-            if ($region !== 0 && $unDep->region->code != $region) {
+        foreach (json_decode($datas, false, 512, JSON_THROW_ON_ERROR) as $unDep) {
+            if ($region !== 0 && $unDep->region->code !== $region) {
                 // Filtrage sur une région
                 continue;
             }
             // Définir si le département est actif ou non
             $actif = true;
-            if (in_array($unDep->code, etalabDvf::departementsHs)) {
+            if (in_array($unDep->code, etalabDvf::departementsHs, true)) {
                 $actif = false;
             }
             $unDep->actif = ($actif ? '1' : '0');
             $listeDep[] = $unDep;
         }
-        return json_encode($listeDep);
+        return json_encode($listeDep, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -90,12 +90,12 @@ class geoApiGouvFr
     {
         $monRetour = [];
         foreach ($departement as $unDep) {
-            foreach (json_decode($datas) as $uneCommune) {
             $datas = api::getContenuFichier(self::pathDepartements.$unDep);
+            foreach (json_decode($datas, false, 512, JSON_THROW_ON_ERROR) as $uneCommune) {
                 $monRetour[] = $uneCommune;
             }
         }
-        return json_encode($monRetour);
+        return json_encode($monRetour, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -119,12 +119,12 @@ class geoApiGouvFr
         if ($region !== 0 || $departement !== 0) {
             // Filtrage sur un département ou une région
             $contourDep = [];
-            foreach (json_decode($datas) as $unDep) {
-                if ($unDep->region->code == $region || $unDep->code == $departement) {
+            foreach (json_decode($datas, false, 512, JSON_THROW_ON_ERROR) as $unDep) {
+                if ($unDep->region->code === $region || $unDep->code === $departement) {
                     $contourDep[$unDep->code] = $unDep;
                 }
             }
-            $result = json_encode($contourDep);
+            $result = json_encode($contourDep, JSON_THROW_ON_ERROR);
         } else {
             $result = $datas;
         }
@@ -145,7 +145,7 @@ class geoApiGouvFr
         $jsonDepartements = self::telechargerListeDepartements();
 
         // Pour chaque département
-        foreach (json_decode($jsonDepartements) as $unDep) {
+        foreach (json_decode($jsonDepartements, false, 512, JSON_THROW_ON_ERROR) as $unDep) {
             // Pause de 0,1 secondes pour ne pas saturer l'API en face
             usleep(100000);
 
@@ -169,7 +169,7 @@ class geoApiGouvFr
         $jsonDepartements = self::getListeDepartements();
 
         // Pour chaque département
-        foreach (json_decode($jsonDepartements) as $unDep) {
+        foreach (json_decode($jsonDepartements, false, 512, JSON_THROW_ON_ERROR) as $unDep) {
             // Préparer les contours des régions
             if (!isset($contoursRegion[$unDep->region->code])) {
                 $contoursRegion[$unDep->region->code] = new Polygon([]);
@@ -178,7 +178,7 @@ class geoApiGouvFr
             $jsonCommunes = self::getListeCommunes($unDep->code);
             // Générer le contour du département
             $contourDep = new Polygon([]);
-            foreach (json_decode($jsonCommunes) as $uneCommune) {
+            foreach (json_decode($jsonCommunes, false, 512, JSON_THROW_ON_ERROR) as $uneCommune) {
                 // Charger le polygone de la commune
                 $contourCommune = new Polygon($uneCommune->contour->coordinates);
                 // L'associer au polygone du département
@@ -194,7 +194,7 @@ class geoApiGouvFr
             $contoursDep[$unDep->code] = RDP::RamerDouglasPeucker2d($contourDep->toArray()[0], self::epsilonFactor);
         }
         // Enregistrer les contours des départements
-        file_put_contents(self::contoursDepartements, json_encode($contoursDep));
+        file_put_contents(self::contoursDepartements, json_encode($contoursDep, JSON_THROW_ON_ERROR));
 
         // Simplifier les contours des régions
         $resultRegion = [];
@@ -202,7 +202,7 @@ class geoApiGouvFr
             $resultRegion[$key] = RDP::RamerDouglasPeucker2d($uneRegion->toArray()[0], self::epsilonFactor);
         }
         // Enregistrer les contours des régions
-        file_put_contents(self::contoursRegions, json_encode($resultRegion));
+        file_put_contents(self::contoursRegions, json_encode($resultRegion, JSON_THROW_ON_ERROR));
     }
 
     /**

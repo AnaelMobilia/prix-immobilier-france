@@ -26,7 +26,7 @@ require '../config/config.php';
 
 $departement = $_REQUEST['departement'];
 // Cas d'erreur
-if (!ctype_alnum(str_replace('-', '', $departement))) {
+if (!preg_match('#^[0-9AB-]$#', $departement)) {
     header('HTTP/1.1 404 Not Found');
     die('ERREUR : Mauvais code de département');
 }

@@ -74,7 +74,7 @@ class etalabDvf
 
         foreach ($departement as $unDep) {
             // Ne pas prendre les départements HS
-            if (in_array($unDep, self::departementsHs)) {
+            if (in_array($unDep, self::departementsHs, true)) {
                 continue;
             }
 
@@ -82,28 +82,30 @@ class etalabDvf
                 $path = self::pathDepartements.$unDep.'-'.$uneAnee;
                 $datas = api::getContenuFichier($path);
 
-                foreach (json_decode($datas) as $uneMutation) {
+                foreach (json_decode($datas, false, 512, JSON_THROW_ON_ERROR) as $uneMutation) {
                     // Filtre sur le type de bien
                     if ($typeBien !== '' && $typeBien !== $uneMutation->type_local) {
                         continue;
                     }
+                    // Filter sur la surface réelle bâtie
                     if ($checkSuperficieHabitable) {
-                        // Filter sur la surface réelle bâtie
+                        // Bien trop petit
                         if (isset($superficeHabitableMin) && $uneMutation->surface_reelle_bati < $superficeHabitableMin) {
-                            // Bien trop petit
                             continue;
-                        } elseif (isset($superficeHabitableMax) && $uneMutation->surface_reelle_bati > $superficeHabitableMax) {
-                            // Bien trop grand
+                        }
+                        // Bien trop grand
+                        if (isset($superficeHabitableMax) && $uneMutation->surface_reelle_bati > $superficeHabitableMax) {
                             continue;
                         }
                     }
+                    // Filter sur la surface du terrain
                     if ($checkSuperficieTerrain) {
-                        // Filter sur la surface du terrain
+                        // Terrain trop petit
                         if (isset($superficeTerrainMin) && $uneMutation->surface_terrain < $superficeTerrainMin) {
-                            // Terrain trop petit
                             continue;
-                        } elseif (isset($superficeTerrainMax) && $uneMutation->surface_terrain > $superficeTerrainMax) {
-                            // Terrain trop grand
+                        }
+                        // Terrain trop grand
+                        if (isset($superficeTerrainMax) && $uneMutation->surface_terrain > $superficeTerrainMax) {
                             continue;
                         }
                     }
@@ -117,7 +119,7 @@ class etalabDvf
             return strcmp($a->date_mutation, $b->date_mutation) * -1;
         });
 
-        return json_encode($monRetour);
+        return json_encode($monRetour, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -127,7 +129,7 @@ class etalabDvf
      */
     public static function telechargerVentes(int $annee, string $departement): void
     {
-        if (!in_array($departement, self::departementsHs)) {
+        if (!in_array($departement, self::departementsHs, true)) {
             // URL de l'API à appeler
             $url = self::apiBaseUrl.$annee.self::apiUrlParamDepartements.$departement.self::apiEndUrl;
             // Fichier de stockage
@@ -141,18 +143,19 @@ class etalabDvf
             $tabMutations = [];     // Mutations
             $tabExclusions = [];    // ID des mutations à exclure
             // Compiler les données du fichier
-            $handle = fopen($fichierBrut, "r");
+            $handle = fopen($fichierBrut, 'rb');
             // Sauter la ligne des entêtes
             fgets($handle);
             while (($data = fgetcsv($handle)) !== false) {
                 // ID de la mutation
                 $idMutation = $data[0];
 
-                if (in_array($idMutation, $tabExclusions)) {
-                    // Mutation à ne pas prendre
+                // Mutation à ne pas prendre
+                if (in_array($idMutation, $tabExclusions, true)) {
                     continue;
-                } elseif (isset($tabMutations[$idMutation])) {
-                    // Mutation en plusieurs parties -> récupérer les données
+                }
+                // Mutation en plusieurs parties -> récupérer les données
+                if (isset($tabMutations[$idMutation])) {
                     $uneMutation = $tabMutations[$idMutation];
                 } else {
                     // Nouvelle mutation
@@ -172,7 +175,7 @@ class etalabDvf
 
                 // Vérification du type_local
                 if (
-                    !in_array($data[30], self::DVFtypeLocal)
+                    !in_array($data[30], self::DVFtypeLocal, true)
                     || ($uneMutation['type_local'] === self::DVFtypeLocalAppart && $data[30] === self::DVFtypeLocalMaison)
                     || ($uneMutation['type_local'] === self::DVFtypeLocalMaison && $data[30] === self::DVFtypeLocalAppart)
                 ) {
@@ -233,7 +236,7 @@ class etalabDvf
                 $tabFinal[] = $uneMutation;
             }
             // Enregistrer les données compilées
-            file_put_contents($fichierCompile, json_encode($tabFinal));
+            file_put_contents($fichierCompile, json_encode($tabFinal, JSON_THROW_ON_ERROR));
             // Supprimer le fichier "brut"
             unlink($fichierBrut);
         }
@@ -250,6 +253,6 @@ class etalabDvf
         // A partir de mai (Chaque année, une première diffusion sera effectuée en avril) => année en cours
         $anneeFin = (date('m') >= 5 ? date('Y') : date('Y') - 1);
 
-        return json_encode(range($anneeFin - 4, $anneeFin));
+        return json_encode(range($anneeFin - 4, $anneeFin), JSON_THROW_ON_ERROR);
     }
 }

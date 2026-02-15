@@ -30,11 +30,12 @@ $periode = $_REQUEST['periode'];
 $supHab = $_REQUEST['supHab'] ?? '';
 $supTerrain = $_REQUEST['supTerrain'] ?? '';
 // Cas d'erreur
-if (!ctype_alnum(str_replace('-', '', $departement))
-    || (!empty($typeBien) && !ctype_alnum($typeBien))
-    || !ctype_alnum(str_replace('-', '', $periode))
-    || (!empty($supHab) && !ctype_alnum(str_replace('-', '', $supHab)))
-    || (!empty($supTerrain) && !ctype_alnum(str_replace('-', '', $supTerrain)))
+if (
+    !preg_match('#^[0-9AB-]$#', $departement)
+    || ($typeBien !== '' && !ctype_alnum($typeBien))
+    || !preg_match('#^[0-9-]$#', $periode)
+    || ($supHab !== '' && !preg_match('#^[0-9-]$#', $supHab))
+    || ($supTerrain !== '' && !preg_match('#^[0-9-]$#', $supTerrain))
 ) {
     header('HTTP/1.1 404 Not Found');
     die('ERREUR');
@@ -45,7 +46,7 @@ $datasCsv = etalabDvf::getListeVentes(explode('-', $departement), explode('-', $
 
 // Synthétiser les données par commune
 $communes = [];
-foreach (json_decode($datasCsv) as $uneTransaction) {
+foreach (json_decode($datasCsv, false, 512, JSON_THROW_ON_ERROR) as $uneTransaction) {
     $codeCommune = $uneTransaction->code_commune;
     // Je créée la commune si nécessaire
     if (!isset($communes[$codeCommune])) {
@@ -117,4 +118,4 @@ $resultats[0] = [
 ];
 
 header('Content-Type: application/json');
-echo json_encode($resultats);
+echo json_encode($resultats, JSON_THROW_ON_ERROR);

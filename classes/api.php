@@ -49,7 +49,7 @@ class api
         }
 
         // Enregistrer le résultat
-        if ($filename != "") {
+        if ($filename !== '') {
             file_put_contents($filename, $result);
         }
 
@@ -63,7 +63,7 @@ class api
      */
     public static function getContenuFichier(string $path): string
     {
-        $monRetour = json_encode([]);
+        $monRetour = '[]';
 
         if (file_exists($path)) {
             $monRetour = file_get_contents($path);

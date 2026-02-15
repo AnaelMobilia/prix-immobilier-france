@@ -28,8 +28,8 @@ require 'config/config.php';
 geoApiGouvFr::mettreAJourLesDonnees();
 
 // Récupération des prix des dernières années pour chaque département
-foreach (json_decode(geoApiGouvFr::getListeDepartements()) as $unDep) {
-    foreach (json_decode(etalabDvf::getPossibleYears()) as $uneAnnee) {
+foreach (json_decode(geoApiGouvFr::getListeDepartements(), false, 512, JSON_THROW_ON_ERROR) as $unDep) {
+    foreach (json_decode(etalabDvf::getPossibleYears(), false, 512, JSON_THROW_ON_ERROR) as $uneAnnee) {
         etalabDvf::telechargerVentes($uneAnnee, $unDep->code);
     }
 }

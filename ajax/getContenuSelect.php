@@ -24,12 +24,10 @@
 
 require '../config/config.php';
 
-// Types possibles : departements, annees
-if (!ctype_alnum($type)
-    || !in_array($type, ["departements", "annees"])) {
-    header("HTTP/1.1 404 Not Found");
-    die("ERREUR");
 $type = $_REQUEST['type'];
+if (!in_array($type, ['departements', 'annees'])) {
+    header('HTTP/1.1 404 Not Found');
+    die('ERREUR');
 }
 
 header('Content-Type: application/json');
