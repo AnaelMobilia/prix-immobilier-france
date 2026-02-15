@@ -21,23 +21,23 @@
 class etalabDvf
 {
     // PATH pour les fichiers
-    private const basePath = __BASE_PATH__.'datas/'.self::class.'/';
-    private const pathDepartements = self::basePath.'departements/';
-    private const pathRegions = self::basePath.'regions/';
+    private const string basePath = __BASE_PATH__.'datas/'.self::class.'/';
+    private const string pathDepartements = self::basePath.'departements/';
+    private const string pathRegions = self::basePath.'regions/';
 
     // URL de l'API
-    private const apiBaseUrl = 'https://files.data.gouv.fr/geo-dvf/latest/csv/';
+    private const string apiBaseUrl = 'https://files.data.gouv.fr/geo-dvf/latest/csv/';
     // Pour "remonter" dans le temps ;-)
-    //private const apiBaseUrl = 'https://files.opendatarchives.fr/cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/';
-    private const apiUrlParamDepartements = '/departements/';
-    private const apiEndUrl = '.csv.gz';
+    //private const string apiBaseUrl = 'https://files.opendatarchives.fr/cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/';
+    private const string apiUrlParamDepartements = '/departements/';
+    private const string apiEndUrl = '.csv.gz';
 
     // Départements non concernés
-    public const departementsHs = [57, 67, 68, 976];
+    public const array departementsHs = [57, 67, 68, 976];
     // Liste des locaux pris en compte (exclusion de "Local industriel. commercial ou assimilé")
-    private const DVFtypeLocalAppart = 'Appartement';
-    private const DVFtypeLocalMaison = 'Maison';
-    private const DVFtypeLocal = ['', 'Dépendance', self::DVFtypeLocalAppart, self::DVFtypeLocalMaison];
+    private const string DVFtypeLocalAppart = 'Appartement';
+    private const string DVFtypeLocalMaison = 'Maison';
+    private const array DVFtypeLocal = ['', 'Dépendance', self::DVFtypeLocalAppart, self::DVFtypeLocalMaison];
 
     /**
      * Chemin du fichier de liste des ventes
@@ -148,7 +148,7 @@ class etalabDvf
             $handle = fopen($fichierBrut, 'rb');
             // Sauter la ligne des entêtes
             fgets($handle);
-            while (($data = fgetcsv($handle)) !== false) {
+            while (($data = fgetcsv($handle, null, ',', '"', '')) !== false) {
                 // ID de la mutation
                 $idMutation = $data[0];
 

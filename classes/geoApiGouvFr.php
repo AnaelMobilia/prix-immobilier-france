@@ -28,23 +28,23 @@ class geoApiGouvFr
     // => Implique travaille sur l'algo d'union des polygones ?
 
     // PATH pour les fichiers
-    private const basePath = __BASE_PATH__.'datas/'.self::class.'/';
-    private const pathDepartements = self::basePath.'departements/';
-    private const pathRegions = self::basePath.'regions/';
-    private const listeDepartements = self::pathDepartements.'liste';
-    private const listeRegions = self::pathRegions.'liste';
-    private const contoursDepartements = self::pathDepartements.'contours';
-    private const contoursRegions = self::pathRegions.'contours';
+    private const string basePath = __BASE_PATH__.'datas/'.self::class.'/';
+    private const string pathDepartements = self::basePath.'departements/';
+    private const string pathRegions = self::basePath.'regions/';
+    private const string listeDepartements = self::pathDepartements.'liste';
+    private const string listeRegions = self::pathRegions.'liste';
+    private const string contoursDepartements = self::pathDepartements.'contours';
+    private const string contoursRegions = self::pathRegions.'contours';
 
     // Epsilon : simplification des contours des polygônes
-    private const epsilonFactor = 0.003;
+    private const float epsilonFactor = 0.003;
 
     // URL de l'API
-    private const apiBaseUrl = 'https://geo.api.gouv.fr/';
-    private const apiUrlRegions = 'regions/';
-    private const apiUrlDepartements = 'departements/';
-    private const apiContoursCommunes = 'communes?fields=contour,centre,surface,population';
-    private const apiListeDepartements = '?fields=region';
+    private const string apiBaseUrl = 'https://geo.api.gouv.fr/';
+    private const string apiUrlRegions = 'regions/';
+    private const string apiUrlDepartements = 'departements/';
+    private const string apiContoursCommunes = 'communes?fields=contour,centre,surface,population';
+    private const string apiListeDepartements = '?fields=region';
 
 
     /**
