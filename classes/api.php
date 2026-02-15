@@ -30,7 +30,7 @@ class api
      * @param bool $estGz Est-ce un fichier .gz (le décompresser)
      * @return string|array données (string JSON encodé ou array de texte)
      */
-    public static function telecharger(string $url, string $filename = "", bool $estGz = false): string|array
+    public static function telecharger(string $url, string $filename = '', bool $estGz = false): string|array
     {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -42,10 +42,10 @@ class api
             // Fichier temporaire
             $fichier = tempnam(sys_get_temp_dir(), 'telecharger');
             // Enregistrer le résultat
-            file_put_contents($fichier . ".gz", $result);
+            file_put_contents($fichier.'.gz', $result);
             // Décompresser le résultat
-            $result = gzfile($fichier . ".gz");
-            unlink($fichier . ".gz");
+            $result = gzfile($fichier.'.gz');
+            unlink($fichier.'.gz');
         }
 
         // Enregistrer le résultat

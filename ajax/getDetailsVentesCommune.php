@@ -22,14 +22,14 @@
  * Ajax - Récupérer les ventes d'une commune
  */
 
-require "../config/config.php";
+require '../config/config.php';
 
-$departement = $_REQUEST["departement"];
-$typeBien = $_REQUEST["typeBien"];
-$codeCommune = $_REQUEST["codeCommune"];
-$periode = $_REQUEST["periode"];
-$supHab = $_REQUEST["supHab"] ?? "";
-$supTerrain = $_REQUEST["supTerrain"] ?? "";
+$departement = $_REQUEST['departement'];
+$typeBien = $_REQUEST['typeBien'];
+$codeCommune = $_REQUEST['codeCommune'];
+$periode = $_REQUEST['periode'];
+$supHab = $_REQUEST['supHab'] ?? '';
+$supTerrain = $_REQUEST['supTerrain'] ?? '';
 // Cas d'erreur
 if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($typeBien) && !ctype_alnum($typeBien))
@@ -38,8 +38,8 @@ if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($supHab) && !ctype_alnum(str_replace('-', '', $supHab)))
     || (!empty($supTerrain) && !ctype_alnum(str_replace('-', '', $supTerrain)))
 ) {
-    header("HTTP/1.1 404 Not Found");
-    die("ERREUR");
+    header('HTTP/1.1 404 Not Found');
+    die('ERREUR');
 }
 
 // Traitement du fichier CSV
@@ -56,7 +56,7 @@ foreach (json_decode($datasCsv) as $uneTransaction) {
     $transactions[] = $uneTransaction;
     // Enregistrer la valeur du m²
     if ($uneTransaction->surface_reelle_bati > 0) {
-        $tabPrixBien[] = (int)round($uneTransaction->valeur_fonciere / $uneTransaction->surface_reelle_bati);
+        $tabPrixBien[] = (int) round($uneTransaction->valeur_fonciere / $uneTransaction->surface_reelle_bati);
     }
 }
 
@@ -67,7 +67,7 @@ $prixMaxBien = heatmap::getMaxValue($tabPrixBien);
 // Calcul des résultats
 $resultats = [];
 foreach ($transactions as $uneTransaction) {
-    $prixBienM2 = (int)round($uneTransaction->valeur_fonciere / $uneTransaction->surface_reelle_bati);
+    $prixBienM2 = (int) round($uneTransaction->valeur_fonciere / $uneTransaction->surface_reelle_bati);
     $uneTransaction->couleur = heatmap::heatmapColor($prixBienM2, $prixMinBien, $prixMaxBien);
     $uneTransaction->prixBienM2 = $prixBienM2;
     $uneTransaction->prixMinBien = $prixMinBien;

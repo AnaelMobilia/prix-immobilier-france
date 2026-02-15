@@ -22,22 +22,22 @@
  * Ajax - Récupérer le contenu d'un select
  */
 
-require "../config/config.php";
+require '../config/config.php';
 
-$type = $_REQUEST["type"];
 // Types possibles : departements, annees
 if (!ctype_alnum($type)
     || !in_array($type, ["departements", "annees"])) {
     header("HTTP/1.1 404 Not Found");
     die("ERREUR");
+$type = $_REQUEST['type'];
 }
 
 header('Content-Type: application/json');
 switch ($type) {
-    case "departements":
+    case 'departements':
         echo geoApiGouvFr::getListeDepartements();
         break;
-    case "annees":
+    case 'annees':
         echo etalabDvf::getPossibleYears();
         break;
 }

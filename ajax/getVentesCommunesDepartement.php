@@ -22,13 +22,13 @@
  * Ajax - Récupération des prix de ventes des communes d'un département
  */
 
-require "../config/config.php";
+require '../config/config.php';
 
-$departement = $_REQUEST["departement"];
-$typeBien = $_REQUEST["typeBien"];
-$periode = $_REQUEST["periode"];
-$supHab = $_REQUEST["supHab"] ?? "";
-$supTerrain = $_REQUEST["supTerrain"] ?? "";
+$departement = $_REQUEST['departement'];
+$typeBien = $_REQUEST['typeBien'];
+$periode = $_REQUEST['periode'];
+$supHab = $_REQUEST['supHab'] ?? '';
+$supTerrain = $_REQUEST['supTerrain'] ?? '';
 // Cas d'erreur
 if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($typeBien) && !ctype_alnum($typeBien))
@@ -36,8 +36,8 @@ if (!ctype_alnum(str_replace('-', '', $departement))
     || (!empty($supHab) && !ctype_alnum(str_replace('-', '', $supHab)))
     || (!empty($supTerrain) && !ctype_alnum(str_replace('-', '', $supTerrain)))
 ) {
-    header("HTTP/1.1 404 Not Found");
-    die("ERREUR");
+    header('HTTP/1.1 404 Not Found');
+    die('ERREUR');
 }
 
 // Traitement du fichier CSV
@@ -50,17 +50,17 @@ foreach (json_decode($datasCsv) as $uneTransaction) {
     // Je créée la commune si nécessaire
     if (!isset($communes[$codeCommune])) {
         $communes[$codeCommune] = [
-            "prix" => 0,
-            "superficieBien" => 0,
-            "superficieTerrain" => 0,
-            "valeurs" => 0,
+            'prix'              => 0,
+            'superficieBien'    => 0,
+            'superficieTerrain' => 0,
+            'valeurs'           => 0,
         ];
     }
     // On somme les valeurs pour lisser les écarts avec une moyenne
-    $communes[$codeCommune]["prix"] += $uneTransaction->valeur_fonciere;
-    $communes[$codeCommune]["superficieBien"] += $uneTransaction->surface_reelle_bati;
-    $communes[$codeCommune]["superficieTerrain"] += $uneTransaction->surface_terrain;
-    $communes[$codeCommune]["valeurs"]++;
+    $communes[$codeCommune]['prix'] += $uneTransaction->valeur_fonciere;
+    $communes[$codeCommune]['superficieBien'] += $uneTransaction->surface_reelle_bati;
+    $communes[$codeCommune]['superficieTerrain'] += $uneTransaction->surface_terrain;
+    $communes[$codeCommune]['valeurs']++;
 }
 
 // Calculer €/m² par commune + fourchette de prix
@@ -70,16 +70,16 @@ $tabPrixTerrain = [];
 foreach ($communes as $codeCommune => $valeurs) {
     $prixBienM2 = 0;
     $prixTerrainM2 = 0;
-    if ($valeurs["superficieBien"] > 0) {
-        $prixBienM2 = (int)round($valeurs["prix"] / $valeurs["superficieBien"]);
+    if ($valeurs['superficieBien'] > 0) {
+        $prixBienM2 = (int) round($valeurs['prix'] / $valeurs['superficieBien']);
     }
-    if ($valeurs["superficieTerrain"] > 0) {
-        $prixTerrainM2 = (int)round($valeurs["prix"] / $valeurs["superficieTerrain"]);
+    if ($valeurs['superficieTerrain'] > 0) {
+        $prixTerrainM2 = (int) round($valeurs['prix'] / $valeurs['superficieTerrain']);
     }
 
-    $communes[$codeCommune]["prixBienM2"] = $prixBienM2;
-    $communes[$codeCommune]["prixTerrainM2"] = $prixTerrainM2;
-    $communes[$codeCommune]["valeurs"] = $valeurs["valeurs"];
+    $communes[$codeCommune]['prixBienM2'] = $prixBienM2;
+    $communes[$codeCommune]['prixTerrainM2'] = $prixTerrainM2;
+    $communes[$codeCommune]['valeurs'] = $valeurs['valeurs'];
 
     // Liste des prix
     $tabPrixBien[] = $prixBienM2;
@@ -99,21 +99,21 @@ $resultats = [];
 // Informations de chaque commune
 foreach ($communes as $codeCommune => $valeurs) {
     $tabTmp = [
-        "codeInsee" => $codeCommune,
-        "prixBienM2" => $valeurs["prixBienM2"],
-        "prixTerrainM2" => $valeurs["prixTerrainM2"],
-        "couleurBien" => "#" . heatmap::heatmapColor($valeurs["prixBienM2"], $prixMinBien, $prixMaxBien),
-        "couleurTerrain" => "#" . heatmap::heatmapColor($valeurs["prixTerrainM2"], $prixMinTerrain, $prixMaxTerrain),
-        "valeurs" => $valeurs["valeurs"],
+        'codeInsee'      => $codeCommune,
+        'prixBienM2'     => $valeurs['prixBienM2'],
+        'prixTerrainM2'  => $valeurs['prixTerrainM2'],
+        'couleurBien'    => '#'.heatmap::heatmapColor($valeurs['prixBienM2'], $prixMinBien, $prixMaxBien),
+        'couleurTerrain' => '#'.heatmap::heatmapColor($valeurs['prixTerrainM2'], $prixMinTerrain, $prixMaxTerrain),
+        'valeurs'        => $valeurs['valeurs'],
     ];
     $resultats[$codeCommune] = $tabTmp;
 }
 
 $resultats[0] = [
-    "prixMinBien" => $prixMinBien,
-    "prixMaxBien" => $prixMaxBien,
-    "prixMinTerrain" => $prixMinTerrain,
-    "prixMaxTerrain" => $prixMaxTerrain,
+    'prixMinBien'    => $prixMinBien,
+    'prixMaxBien'    => $prixMaxBien,
+    'prixMinTerrain' => $prixMinTerrain,
+    'prixMaxTerrain' => $prixMaxTerrain,
 ];
 
 header('Content-Type: application/json');

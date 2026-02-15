@@ -31,10 +31,10 @@ class heatmap
     public static function getMinValue(array $tabPrix): int
     {
         $monRetour = 0;
-        if (sizeof($tabPrix) > 0) {
+        if (count($tabPrix) > 0) {
             // Trier la liste des prix
             sort($tabPrix);
-            $monRetour = $tabPrix[floor(5 / 100 * sizeof($tabPrix))];
+            $monRetour = $tabPrix[floor(5 / 100 * count($tabPrix))];
         }
         return $monRetour;
     }
@@ -47,10 +47,10 @@ class heatmap
     public static function getMaxValue(array $tabPrix): int
     {
         $monRetour = 0;
-        if (sizeof($tabPrix) > 0) {
+        if (count($tabPrix) > 0) {
             // Trier la liste des prix
             sort($tabPrix);
-            $monRetour = $tabPrix[floor(97 / 100 * sizeof($tabPrix))];
+            $monRetour = $tabPrix[floor(97 / 100 * count($tabPrix))];
         }
         return $monRetour;
     }
@@ -67,10 +67,10 @@ class heatmap
     {
         // Gestion des valeurs extrêmes
         if ($value <= $minValue) {
-            return "00FF00";
+            return '00FF00';
         }
         if ($value >= $maxValue) {
-            return "FF0000";
+            return 'FF0000';
         }
 
         // On va de FF0000 à 00FF00 => 510 valeurs possibles
@@ -82,10 +82,9 @@ class heatmap
 
         if ($nbPaliers <= 255) {
             // Nuances de verts
-            return "00" . dechex(255 - $nbPaliers) . "00";
-        } else {
-            // Nuances de rouge
-            return dechex($nbPaliers - 255) . "0000";
+            return '00'.dechex(255 - $nbPaliers).'00';
         }
+        // Nuances de rouge
+        return dechex($nbPaliers - 255).'0000';
     }
 }

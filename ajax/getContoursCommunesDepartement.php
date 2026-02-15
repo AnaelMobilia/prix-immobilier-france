@@ -22,13 +22,13 @@
  * Ajax - Récupérer les contours des communes d'un département
  */
 
-require "../config/config.php";
+require '../config/config.php';
 
-$departement = $_REQUEST["departement"];
+$departement = $_REQUEST['departement'];
 // Cas d'erreur
 if (!ctype_alnum(str_replace('-', '', $departement))) {
-    header("HTTP/1.0 404 Not Found");
-    die("ERREUR : Mauvais code de département");
+    header('HTTP/1.1 404 Not Found');
+    die('ERREUR : Mauvais code de département');
 }
 
 header('Content-Type: application/json');

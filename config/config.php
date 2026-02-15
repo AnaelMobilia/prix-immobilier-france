@@ -18,24 +18,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-define("__BASE_PATH__", dirname(__FILE__) . "/../");
+const __BASE_PATH__ = __DIR__.'/../';
 
 // Gestion du chargement des classes
 spl_autoload_register(
     function ($class) {
-        if (is_file(__BASE_PATH__ . 'classes/' . $class . '.php')) {
+        if (is_file(__BASE_PATH__.'classes/'.$class.'.php')) {
             // Fichiers du site
-            include __BASE_PATH__ . 'classes/' . $class . '.php';
+            include __BASE_PATH__.'classes/'.$class.'.php';
         } elseif (is_file(
-            __BASE_PATH__ . 'libs/martinez-rueda-php/' . str_replace('MartinezRueda\\', '', $class) . '.php'
+            __BASE_PATH__.'libs/martinez-rueda-php/'.str_replace('MartinezRueda\\', '', $class).'.php'
         )) {
             // Classe martinez-rueda-php
-            include(__BASE_PATH__ . 'libs/martinez-rueda-php/' . str_replace('MartinezRueda\\', '', $class) . '.php');
+            include(__BASE_PATH__.'libs/martinez-rueda-php/'.str_replace('MartinezRueda\\', '', $class).'.php');
         } elseif (is_file(
-            __BASE_PATH__ . 'libs/RDP-PHP/' . str_replace('davidredgar\polyline\\', '', $class) . '.php'
+            __BASE_PATH__.'libs/RDP-PHP/'.str_replace('davidredgar\polyline\\', '', $class).'.php'
         )) {
             // Classe RDP-PHP
-            include(__BASE_PATH__ . 'libs/RDP-PHP/' . str_replace('davidredgar\polyline\\', '', $class) . '.php');
+            include(__BASE_PATH__.'libs/RDP-PHP/'.str_replace('davidredgar\polyline\\', '', $class).'.php');
         }
     }
 );

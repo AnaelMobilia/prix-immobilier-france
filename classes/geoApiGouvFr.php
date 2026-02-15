@@ -28,23 +28,23 @@ class geoApiGouvFr
     // => Implique travaille sur l'algo d'union des polygones ?
 
     // PATH pour les fichiers
-    private const basePath = __BASE_PATH__ . "datas/" . self::class . "/";
-    private const pathDepartements = self::basePath . "departements/";
-    private const pathRegions = self::basePath . "regions/";
-    private const listeDepartements = self::pathDepartements . "liste";
-    private const listeRegions = self::pathRegions . "liste";
-    private const contoursDepartements = self::pathDepartements . "contours";
-    private const contoursRegions = self::pathRegions . "contours";
+    private const basePath = __BASE_PATH__.'datas/'.self::class.'/';
+    private const pathDepartements = self::basePath.'departements/';
+    private const pathRegions = self::basePath.'regions/';
+    private const listeDepartements = self::pathDepartements.'liste';
+    private const listeRegions = self::pathRegions.'liste';
+    private const contoursDepartements = self::pathDepartements.'contours';
+    private const contoursRegions = self::pathRegions.'contours';
 
     // Epsilon : simplification des contours des polygônes
     private const epsilonFactor = 0.003;
 
     // URL de l'API
-    private const apiBaseUrl = "https://geo.api.gouv.fr/";
-    private const apiUrlRegions = "regions/";
-    private const apiUrlDepartements = "departements/";
-    private const apiContoursCommunes = "communes?fields=contour,centre,surface,population";
-    private const apiListeDepartements = "?fields=region";
+    private const apiBaseUrl = 'https://geo.api.gouv.fr/';
+    private const apiUrlRegions = 'regions/';
+    private const apiUrlDepartements = 'departements/';
+    private const apiContoursCommunes = 'communes?fields=contour,centre,surface,population';
+    private const apiListeDepartements = '?fields=region';
 
 
     /**
@@ -75,7 +75,7 @@ class geoApiGouvFr
             if (in_array($unDep->code, etalabDvf::departementsHs)) {
                 $actif = false;
             }
-            $unDep->actif = ($actif ? "1" : "0");
+            $unDep->actif = ($actif ? '1' : '0');
             $listeDep[] = $unDep;
         }
         return json_encode($listeDep);
@@ -90,8 +90,8 @@ class geoApiGouvFr
     {
         $monRetour = [];
         foreach ($departement as $unDep) {
-            $datas = api::getContenuFichier(self::pathDepartements . $unDep);
             foreach (json_decode($datas) as $uneCommune) {
+            $datas = api::getContenuFichier(self::pathDepartements.$unDep);
                 $monRetour[] = $uneCommune;
             }
         }
@@ -134,14 +134,14 @@ class geoApiGouvFr
     /**
      * Mettre à jour les données (appel par tâche cron)
      */
-    public static function mettreAJourLesDonnees()
+    public static function mettreAJourLesDonnees(): void
     {
         // Mettre à jour la liste des régions
-        echo "Liste des régions<br />\r\n";
+        echo 'Liste des régions<br />\r\n';
         self::telechargerListeRegions();
 
         // Récupérer via l'API la liste des départements
-        echo "Liste des département<br />\r\n";
+        echo 'Liste des département<br />\r\n';
         $jsonDepartements = self::telechargerListeDepartements();
 
         // Pour chaque département
@@ -150,7 +150,7 @@ class geoApiGouvFr
             usleep(100000);
 
             // Mettre à jour la liste des communes et les contours
-            echo "Liste des communes de " . $unDep->nom . "<br />\r\n";
+            echo 'Liste des communes de '.$unDep->nom.'<br />\r\n';
             self::telechargerContoursCommunes($unDep->code);
         }
     }
@@ -159,7 +159,7 @@ class geoApiGouvFr
      * Regénérer les contours des départements et des régions
      * Mets vraiment trop de temps pour être viable... :-)
      */
-    public static function genererContours()
+    public static function genererContours(): void
     {
         // Contours des départements et régions
         $contoursDep = [];
@@ -231,9 +231,9 @@ class geoApiGouvFr
     private static function telechargerContoursCommunes(string $departement): string
     {
         // URL de l'API à appeler
-        $url = self::apiBaseUrl . self::apiUrlDepartements . $departement . '/' . self::apiContoursCommunes;
+        $url = self::apiBaseUrl.self::apiUrlDepartements.$departement.'/'.self::apiContoursCommunes;
         // Fichier de stockage
-        $fichier = self::pathDepartements . $departement;
+        $fichier = self::pathDepartements.$departement;
 
         return api::telecharger($url, $fichier);
     }
@@ -254,7 +254,7 @@ class geoApiGouvFr
     private static function telechargerListeDepartements(): string
     {
         // URL de l'API à appeler
-        $url = self::apiBaseUrl . self::apiUrlDepartements . self::apiListeDepartements;
+        $url = self::apiBaseUrl.self::apiUrlDepartements.self::apiListeDepartements;
         // Fichier de stockage
         $fichier = self::listeDepartements;
 
@@ -273,7 +273,7 @@ class geoApiGouvFr
     private static function telechargerListeRegions(): string
     {
         // URL de l'API à appeler
-        $url = self::apiBaseUrl . self::apiUrlRegions;
+        $url = self::apiBaseUrl.self::apiUrlRegions;
         // Fichier de stockage
         $fichier = self::listeRegions;
 

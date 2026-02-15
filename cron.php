@@ -22,7 +22,7 @@
  * Fichier appelé chaque semaine pour mettre à jour les sources de données
  */
 
-require "config/config.php";
+require 'config/config.php';
 
 // Mise à jour des données "géographiques"
 geoApiGouvFr::mettreAJourLesDonnees();
