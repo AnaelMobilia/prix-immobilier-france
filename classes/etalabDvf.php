@@ -136,7 +136,7 @@ class etalabDvf
             $fichierBrut = self::pathDepartements.$departement.'-'.$annee.'-brut';
             $fichierCompile = self::pathDepartements.$departement.'-'.$annee;
 
-            echo 'DVF '.$annee.'/'.$departement.'<br />\r\n';
+            echo 'DVF '.$annee.'/'.$departement.'<br />';
             api::telecharger($url, $fichierBrut, true);
 
             // Tableau des mutations
